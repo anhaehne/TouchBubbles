@@ -9,3 +9,7 @@
         slideToClickedSlide: true,
     })
 }
+
+window.Swiper.Update = () => {
+    window.Swiper.obj.update();
+}

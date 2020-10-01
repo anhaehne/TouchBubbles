@@ -1,8 +1,15 @@
-﻿html { height: 100%; }
-body { 
+﻿@font-face {
+    font-family: "NunitoSans";
+    src: url(/fonts/NunitoSans-Light.ttf) format("truetype");
+}
+
+html { height: 100%; }
+body {
     height: 100%;
     margin: 0;
     background-color: black;
+    font-family: "NunitoSans", sans-serif;
+    font-weight: lighter; 
 }
 app {
     margin: 0;
@@ -29,7 +36,13 @@ app {
     opacity: 1;
 }
 
-.card {
+.swiper-pagination-bullet {
+    background: darkgray;
+    width: 3vw;
+    height: 3vw;
+}
+
+.bubble {
     position: absolute;
     height: 100%;
     width: 100%;
@@ -38,13 +51,34 @@ app {
     justify-content: center;
 }
 
-.card-content {
-    width: 100%;
+.bubble-name {
+    color: white;
+    font-size: 3vw;
+    margin-bottom: 2vw;
+    margin-top: 0;
+    font-weight: normal;
 }
 
-.card-background {
+.bubble-content {
+    width: 100%;
+    text-align: center;
+}
+
+.bubble-background {
     width: 100%;
     padding-bottom: 100%;
     height: 1px;
     overflow: visible;
+}
+
+.bubble-icon {
+    color: white;
+    left: 50%;
+    top: 50%;
+    height: 20vw;
+    width: 20vw;
+    margin-top: -10vw;
+    margin-left: -10vw;
+    font-size: 20vw;
+    position: fixed;
 }

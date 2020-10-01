@@ -1,11 +1,12 @@
+using HADotNet.Core;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Linq;
+using TouchBubbles.Server.Services;
+using TouchBubbles.Shared;
+using TouchBubbles.Shared.Services;
 
 namespace TouchBubbles.Server
 {
@@ -14,6 +15,8 @@ namespace TouchBubbles.Server
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            var token = configuration["SUPERVISOR_TOKEN"];
+            ClientFactory.Initialize(configuration["HOME_ASSISTANT_API"] ?? "http://supervisor/core", token);
         }
 
         public IConfiguration Configuration { get; }
@@ -22,9 +25,12 @@ namespace TouchBubbles.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            services.AddTransient<IEntityService, EntityService>();
+
+            services.Configure<HomeAssistantOptions>(Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -42,18 +48,18 @@ namespace TouchBubbles.Server
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();
 
             app.UseRouting();
 
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapRazorPages();
-                endpoints.MapControllers();
-                endpoints.MapFallbackToFile("index.html");
-            });
+            app.UseEndpoints(
+                endpoints =>
+                {
+                    endpoints.MapRazorPages();
+                    endpoints.MapControllers();
+                    endpoints.MapFallbackToFile("index.html");
+                });
         }
     }
 }
