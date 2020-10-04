@@ -14,8 +14,8 @@ namespace TouchBubbles.Server
         public static IHostBuilder CreateHostBuilder(string[] args)
         {
             return Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); })
-                .ConfigureAppConfiguration(builder => builder.AddEnvironmentVariables());
+                .ConfigureAppConfiguration(builder => builder.AddEnvironmentVariables())
+                .ConfigureWebHostDefaults(webBuilder => { webBuilder.UseStartup<Startup>(); });
         }
     }
 }

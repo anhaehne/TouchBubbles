@@ -13,3 +13,7 @@
 window.Swiper.Update = () => {
     window.Swiper.obj.update();
 }
+
+window.Swiper.ActiveIndex = () => {
+    return window.Swiper.obj.realIndex;
+}

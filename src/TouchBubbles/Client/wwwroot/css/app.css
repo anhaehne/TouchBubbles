@@ -71,6 +71,10 @@ app {
     overflow: visible;
 }
 
+circle {
+    transition: stroke 0.25s, fill 0.25s;
+}
+
 .bubble-icon {
     color: white;
     left: 50%;

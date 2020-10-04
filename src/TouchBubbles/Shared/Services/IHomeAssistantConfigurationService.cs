@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using HADotNet.Core.Clients;
+using TouchBubbles.Shared.Models;
 
 namespace TouchBubbles.Shared.Services
 {
-    public interface IEntityService
+    public interface IHomeAssistantConfigurationService
     {
-        Task<IReadOnlyCollection<string>> GetEntitiesAsync();
+        Task<HomeAssistantConfiguration> GetConfigurationAsync();
     }
 }
