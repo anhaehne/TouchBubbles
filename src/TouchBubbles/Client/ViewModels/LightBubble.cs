@@ -31,7 +31,7 @@ namespace TouchBubbles.Client.ViewModels
 
         public override async Task OnClickAsync()
         {
-            _entity = await _entityService.CallServiceAsync("light", "toggle", _entity.Id);
+            _entity.UpdateWith(await _entityService.CallServiceAsync("light", "toggle", _entity.Id));
         }
     }
 }

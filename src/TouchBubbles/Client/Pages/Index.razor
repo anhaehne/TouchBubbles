@@ -31,7 +31,8 @@
 
 @code
 {
-    private readonly IList<Bubble> _bubbles = new List<Bubble>
+    private static int _activeIndex;
+    private static readonly IList<Bubble> _bubbles = new List<Bubble>
     {
         new Bubble
         {
@@ -50,9 +51,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        var entities = await EntityService.GetEntitiesAsync();
+        await EntityService.InitializeAsync();
 
-        foreach (var entity in entities.Where(x => x.Type == "light").Reverse())
+        EntityService.EntityChanged += StateHasChanged;
+
+        foreach (var entity in EntityService.Entities.Where(x => x.Type == "light").Reverse())
         {
             _bubbles.Insert(0, new LightBubble(entity, EntityService));
         }
@@ -77,10 +80,15 @@
     private async Task OnBubbleClickedAsync(Bubble bubble)
     {
         // make sure only the active bubble can be clicked. This will be fun once we implement more touch/mouse interactions ...
-        var activeIndex = await JsRuntime.InvokeAsync<int>("Swiper.ActiveIndex", Array.Empty<object>());
-        if (_bubbles.IndexOf(bubble) != activeIndex)
+        if (_bubbles.IndexOf(bubble) != _activeIndex)
             return;
 
         await bubble.OnClickAsync();
+    }
+
+    [JSInvokable]
+    public static void OnActiveIndexChanged(int newIndex)
+    {
+        _activeIndex = newIndex;
     }
 }

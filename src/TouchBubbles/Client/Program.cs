@@ -42,7 +42,7 @@ namespace TouchBubbles.Client
                         haConfig.SupervisorToken);
                 });
 
-            builder.Services.AddTransient<IEntityService, EntityService>();
+            builder.Services.AddSingleton<IEntityService, EntityService>();
 
             await builder.Build().RunAsync();
         }
