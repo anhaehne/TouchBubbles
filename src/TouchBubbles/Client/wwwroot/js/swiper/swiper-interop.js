@@ -1,4 +1,4 @@
-﻿window.Swiper.Initialize = () => {
+﻿window.Swiper.Initialize = (viewModelReference) => {
     window.Swiper.obj = new Swiper('.swiper-container',
         {
             slidesPerView: 3,
@@ -10,7 +10,7 @@
             slideToClickedSlide: true,
             on: {
                 slideChangeTransitionEnd: function (swiper) {
-                    DotNet.invokeMethodAsync('TouchBubbles.Client', 'OnActiveIndexChanged', swiper.realIndex);
+                    viewModelReference.invokeMethodAsync('OnActiveIndexChanged', swiper.realIndex);
                 }
             }
         });

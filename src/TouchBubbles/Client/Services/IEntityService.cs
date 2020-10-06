@@ -1,21 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Text.Json;
 using System.Threading.Tasks;
 using TouchBubbles.Shared.Models.HomeAssistant;
-using System.Text;
-using System.Text.Json.Serialization;
-using TouchBubbles.Shared.Services;
 
 namespace TouchBubbles.Client.Services
 {
     public interface IEntityService
     {
-        Task<Entity> CallServiceAsync(string domain, string service, string entityId);
-
-        Task InitializeAsync();
-
         List<Entity> Entities { get; set; }
 
-        event Action EntityChanged;
+        Task<Entity> CallServiceAsync(string domain, string service, string entityId);
+
+        Task<JsonElement> CallServiceAsync<T>(string domain, string service, T data);
+
+        Task InitializeAsync();
     }
 }

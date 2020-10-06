@@ -2,25 +2,19 @@
 @using TouchBubbles.Client.Services
 @using TouchBubbles.Client.ViewModels
 @using TouchBubbles.Shared.Models
+@using TouchBubbles.Client.Components
 @inject IEntityService EntityService;
 @inject IJSRuntime JsRuntime;
 
 <div class="swiper-container">
     <div class="swiper-wrapper">
-        @foreach (var bubble in _bubbles)
+        @for (var i = 0; i < _bubbles.Count; i++)
         {
+            var index = i;
+            var bubble = _bubbles[i];
+
             <div class="swiper-slide">
-                <div class="bubble">
-                    <div class="bubble-content">
-                        <h3 class="bubble-name">@bubble.Name</h3>
-                        <div @onclick="async () => await OnBubbleClickedAsync(bubble)">
-                            <svg class="bubble-background" viewBox="0 0 100 100" preserveAspectRatio="xMidYMin slice">
-                                <circle cx="50" cy="50" r="49" stroke="@bubble.BackgroundOutline" stroke-width="2" fill="@bubble.BackgroundColor"></circle>
-                            </svg>
-                            <span class="bubble-icon mdi @bubble.Icon"></span>
-                        </div>
-                    </div>
-                </div>
+                <BubbleView Model="bubble" Index="index" ActiveIndex="_activeIndex"/>
             </div>
         }
     </div>
@@ -31,8 +25,8 @@
 
 @code
 {
-    private static int _activeIndex;
-    private static readonly IList<Bubble> _bubbles = new List<Bubble>
+    private int _activeIndex;
+    private readonly IList<Bubble> _bubbles = new List<Bubble>
     {
         new Bubble
         {
@@ -53,8 +47,6 @@
     {
         await EntityService.InitializeAsync();
 
-        EntityService.EntityChanged += StateHasChanged;
-
         foreach (var entity in EntityService.Entities.Where(x => x.Type == "light").Reverse())
         {
             _bubbles.Insert(0, new LightBubble(entity, EntityService));
@@ -65,7 +57,8 @@
     {
         if (firstRender)
         {
-            await JsRuntime.InvokeAsync<string>("Swiper.Initialize", Array.Empty<object>());
+            var viewModelReference = DotNetObjectReference.Create(this);
+            await JsRuntime.InvokeAsync<string>("Swiper.Initialize", viewModelReference);
             return;
         }
 
@@ -77,18 +70,10 @@
         await JsRuntime.InvokeAsync<string>("Swiper.Update", Array.Empty<object>());
     }
 
-    private async Task OnBubbleClickedAsync(Bubble bubble)
-    {
-        // make sure only the active bubble can be clicked. This will be fun once we implement more touch/mouse interactions ...
-        if (_bubbles.IndexOf(bubble) != _activeIndex)
-            return;
-
-        await bubble.OnClickAsync();
-    }
-
     [JSInvokable]
-    public static void OnActiveIndexChanged(int newIndex)
+    public void OnActiveIndexChanged(int newIndex)
     {
         _activeIndex = newIndex;
+        StateHasChanged();
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -28,7 +30,6 @@ namespace TouchBubbles.Client.Services
         private long _id { get; set; } = 1;
 
         public List<Entity> Entities { get; set; } = new List<Entity>();
-        public event Action EntityChanged;
 
         public EntityService(IHttpClientFactory httpClientFactory, IOptions<HomeAssistantConfiguration> haConfig)
         {
@@ -76,6 +77,15 @@ namespace TouchBubbles.Client.Services
             return (await response.Content.ReadFromJsonAsync<IReadOnlyCollection<Entity>>()).SingleOrDefault(x => x.Id == entityId);
         }
 
+        public async Task<JsonElement> CallServiceAsync<T>(string domain, string service, T data)
+        {
+            var haClient = _httpClientFactory.CreateClient(Constants.HomeAssistant);
+
+            var response = await haClient.PostAsJsonAsync($"api/services/{domain}/{service}", data);
+
+            return await response.Content.ReadFromJsonAsync<JsonElement>();
+        }
+
         private async Task ReceiveLoop()
         {
             while (!_disposalTokenSource.IsCancellationRequested)
@@ -106,11 +116,11 @@ namespace TouchBubbles.Client.Services
                     break;
                 case "event":
                     var apiEvent = apiMessage.Event.ToObject<WebsocketApiEvent>();
-                    await HandleEventAsync(apiEvent);
+                    HandleEvent(apiEvent);
                     break;
             }
         }
-        private async Task HandleEventAsync(WebsocketApiEvent apiEvent)
+        private void HandleEvent(WebsocketApiEvent apiEvent)
         {
             switch (apiEvent.EventType)
             {
@@ -118,7 +128,6 @@ namespace TouchBubbles.Client.Services
                     var eventData = apiEvent.Data.ToObject<WebsocketApiStateChangedEventData>();
                     var entity = Entities.SingleOrDefault(x => x.Id == eventData.EntityId);
                     entity?.UpdateWith(eventData.NewState);
-                    EntityChanged?.Invoke();
                     break;
             }
         }

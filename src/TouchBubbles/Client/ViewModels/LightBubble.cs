@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using TouchBubbles.Client.Services;
 using TouchBubbles.Shared.Models;
@@ -6,32 +8,63 @@ using TouchBubbles.Shared.Models.HomeAssistant;
 
 namespace TouchBubbles.Client.ViewModels
 {
-    public class LightBubble : Bubble
+    public class LightBubble : EntityBubble
     {
         private const string ON_COLOR = "#FFE20F";
         private const string OFF_COLOR = "Transparent";
 
-        private Entity _entity;
         private readonly IEntityService _entityService;
+        private int _brightness;
 
         public LightBubble(Entity entity, IEntityService entityService)
+         : base(entity)
         {
             if (entity.Type != "light")
                 throw new ArgumentException("Entity has to be a light entity.");
 
-            _entity = entity;
+            SupportsSlidingValue = true;
+
             _entityService = entityService;
+            BackgroundOutline = ON_COLOR;
+            Icon = "mdi-lightbulb";
         }
 
-        public override string BackgroundOutline => ON_COLOR;
+        protected override void OnEntityChanged()
+        {
+            BackgroundColor = Entity.State == "on" ? ON_COLOR : OFF_COLOR;
 
-        public override string BackgroundColor => _entity.State == "on" ? ON_COLOR : OFF_COLOR;
-
-        public override string Name => _entity.Name;
+            var attr = Entity.Attributes.ToObject<LightAttributes>();
+            _brightness = attr.Brightness;
+            SlidingValue = _brightness / 255f;
+        }
 
         public override async Task OnClickAsync()
         {
-            _entity.UpdateWith(await _entityService.CallServiceAsync("light", "toggle", _entity.Id));
+            Entity.UpdateWith(await _entityService.CallServiceAsync("light", "toggle", Entity.Id));
+        }
+
+        protected override async void OnSlidingValueChanged(float newValue)
+        {
+            if (newValue < 0 || _entityService == null)
+                return;
+
+            var newBrightness = (int)Math.Round(newValue * 255);
+
+            if (newBrightness == _brightness)
+                return;
+
+            _brightness = newBrightness;
+
+            await _entityService.CallServiceAsync(
+                "light",
+                "turn_on",
+                new { entity_id = Entity.Id, brightness = _brightness });
+        }
+
+        public class LightAttributes
+        {
+            [JsonPropertyName("brightness")]
+            public int Brightness { get; set; }
         }
     }
 }

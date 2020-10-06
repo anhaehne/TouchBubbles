@@ -3,13 +3,17 @@
     src: url(/fonts/NunitoSans-Light.ttf) format("truetype");
 }
 
-html { height: 100%; }
+html {
+    height: 100%;
+    overflow: hidden;
+}
 body {
     height: 100%;
     margin: 0;
     background-color: black;
     font-family: "NunitoSans", sans-serif;
-    font-weight: lighter; 
+    font-weight: lighter;
+    overflow: hidden;
 }
 app {
     margin: 0;
@@ -72,7 +76,11 @@ app {
 }
 
 circle {
-    transition: stroke 0.25s, fill 0.25s;
+    transition: stroke 0.25s ease, fill 0.25s ease;
+}
+
+rect {
+/*    transition: y 0.1s ease-out, height 0.1s ease-out;*/
 }
 
 .bubble-icon {
@@ -85,4 +93,5 @@ circle {
     margin-left: -10vw;
     font-size: 20vw;
     position: fixed;
+    pointer-events: none;
 }

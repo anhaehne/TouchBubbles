@@ -1,0 +1,67 @@
+﻿@using TouchBubbles.Shared.Models
+@using TouchBubbles.Client.ViewModels
+@inject IJSRuntime JsRuntime;
+
+<div class="bubble">
+    <div class="bubble-content">
+        <h3 class="bubble-name">@Model.Name</h3>
+        <BubbleSlider
+            BackgroundColor="@Model.BackgroundColor"
+            BackgroundOutline="@Model.BackgroundOutline"
+            Icon="@Model.Icon"
+            SliderColor="Red"
+            @bind-SlidingValue="Model.SlidingValue"
+            SupportsSlidingValue="Model.SupportsSlidingValue"
+            Enabled="IsActive"
+            OnClick="OnBubbleClickedAsync"/>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public Bubble Model { get; set; }
+
+    [Parameter]
+    public int Index
+    {
+        get => _index;
+        set => _index = value;
+    }
+
+    [Parameter]
+    public int ActiveIndex
+    {
+        get => _activeIndex;
+        set => _activeIndex = value;
+    }
+
+    public bool IsActive => ActiveIndex == Index;
+
+    [Parameter]
+    public EventCallback<int> ActiveIndexChanged { get; set; }
+
+    ElementReference SvgReference { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Model is EntityBubble entityBubble)
+            entityBubble.BubbleChanged += OnEntityChanged;
+    }
+
+    private void OnEntityChanged()
+    {
+        StateHasChanged();
+    }
+
+    private async void OnBubbleClickedAsync()
+    {
+        if (Index != ActiveIndex)
+            return;
+
+        await Model.OnClickAsync();
+    }
+
+    private int _index;
+    private int _activeIndex;
+}
