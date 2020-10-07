@@ -62,6 +62,7 @@
 
     private double _touchStartY;
     private float _slidingValueStart;
+    private float _slidingValueCurrent;
     private string _id = Guid.NewGuid().ToString();
     private bool? _isVerticalMove;
     private Point _start;
@@ -116,6 +117,7 @@
         _start = start;
         _isVerticalMove = null;
         _slidingValueStart = SlidingValue;
+        _slidingValueCurrent = SlidingValue;
         _touchStartY = await JsRuntime.InvokeAsync<double>("DraggableSvg.GetMousePositionY", SvgReference, _start.Y);
     }
 
@@ -132,7 +134,12 @@
 
         var deltaY = (currentY - _touchStartY) / 100;
 
-        SlidingValue = Math.Max(Math.Min(_slidingValueStart - (float)deltaY, 100), 0);
+        var newValue = Math.Max(Math.Min(_slidingValueStart - (float) deltaY, 100), 0);
+
+        if (Math.Abs(SlidingValue - newValue) < 0.01)
+            return;
+
+        SlidingValue = newValue;
         await SlidingValueChanged.InvokeAsync(SlidingValue);
     }
 

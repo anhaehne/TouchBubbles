@@ -12,7 +12,10 @@
                 slideChangeTransitionEnd: function (swiper) {
                     viewModelReference.invokeMethodAsync('OnActiveIndexChanged', window.Swiper.obj.realIndex);
                 }
-            }
+            },
+            freeMode: true,
+            freeModeSticky: true,
+            freeModeMomentumRatio: 0.5,
         });
 }
 
