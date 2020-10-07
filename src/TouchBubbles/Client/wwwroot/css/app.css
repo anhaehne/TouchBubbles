@@ -80,7 +80,7 @@ circle {
 }
 
 rect {
-/*    transition: y 0.1s ease-out, height 0.1s ease-out;*/
+    transition: y 0.1s ease-out, height 0.1s ease-out;
 }
 
 .bubble-icon {

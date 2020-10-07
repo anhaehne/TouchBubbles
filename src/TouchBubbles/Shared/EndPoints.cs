@@ -4,7 +4,7 @@ using System.Text;
 
 namespace TouchBubbles.Shared
 {
-    public class Constants
+    public class EndPoints
     {
         public static string HomeAssistant = nameof(HomeAssistant);
 

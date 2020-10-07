@@ -1,17 +1,18 @@
 using System;
+using System.Linq;
 using System.Net.Http.Headers;
-using HADotNet.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using TouchBubbles.Client.Services;
+using TouchBubbles.Server.Hubs;
+using TouchBubbles.Server.Services;
 using TouchBubbles.Shared;
 using TouchBubbles.Shared.Models;
-using TouchBubbles.Shared.Services;
-using HomeAssistantConfigurationService = TouchBubbles.Server.Services.HomeAssistantConfigurationService;
 
 namespace TouchBubbles.Server
 {
@@ -28,14 +29,22 @@ namespace TouchBubbles.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSignalR();
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddHttpClient();
 
-            services.AddHttpClient(Constants.HomeAssistant);
+            services.AddResponseCompression(opts =>
+            {
+                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                    new[] { "application/octet-stream" });
+            });
+
+            services.AddHttpClient(EndPoints.HomeAssistant);
+
             services.AddHttpClient(
-                Constants.HomeAssistant,
-                (services, client )=>
+                EndPoints.HomeAssistant,
+                (services, client) =>
                 {
                     var haConfig = services.GetRequiredService<IOptions<HomeAssistantConfiguration>>().Value;
                     client.BaseAddress = new Uri(haConfig.HomeAssistantApi);
@@ -46,12 +55,13 @@ namespace TouchBubbles.Server
                 });
 
             services.AddTransient<IEntityService, EntityService>();
-            services.AddTransient<IHomeAssistantConfigurationService, HomeAssistantConfigurationService>();
+            services.AddTransient<IHomeAssistantService, HomeAssistantService>();
+            services.AddHostedService<HomeAssistantUpdateService>();
 
             services.Configure<HomeAssistantConfiguration>(
                 haOptions =>
                 {
-                    haOptions.HomeAssistantApi = Configuration["HOME_ASSISTANT_API"] ?? "http://supervisor/core";
+                    haOptions.HomeAssistantApi = Configuration["HOME_ASSISTANT_API"] ?? "http://supervisor/core/";
                     haOptions.SupervisorToken = Configuration["SUPERVISOR_TOKEN"];
                 });
         }
@@ -59,6 +69,8 @@ namespace TouchBubbles.Server
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseResponseCompression();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -81,6 +93,7 @@ namespace TouchBubbles.Server
                 {
                     endpoints.MapRazorPages();
                     endpoints.MapControllers();
+                    endpoints.MapHub<HomeAssistantHub>("/homeassistant/hub");
                     endpoints.MapFallbackToFile("index.html");
                 });
         }

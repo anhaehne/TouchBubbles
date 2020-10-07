@@ -20,9 +20,9 @@
       "commandName": "Project",
       "launchBrowser": true,
       "environmentVariables": {
-        "SUPERVISOR_TOKEN": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI3ZTExNzFmZTllNWY0Y2FhYWI0MjEwNzEzODk1YTk4ZCIsImlhdCI6MTYwMTU3NDg2MCwiZXhwIjoxOTE2OTM0ODYwfQ.WLj90shbmfFfIXAR0haVLUG7PccDh7qfCU5mge4hC48",
+        "SUPERVISOR_TOKEN": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI4MDI1NWUzMjFlMGM0NmZhYjllNWY0MmEyZmE4MDRmYiIsImlhdCI6MTYwMjA3Njg1OCwiZXhwIjoxOTE3NDM2ODU4fQ.TelH7lR3BLuv7cPXXC_SgCGbxwhNY2NKUehHQx226TA",
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "HOME_ASSISTANT_API": "http://home.hhnl.de"
+        "HOME_ASSISTANT_API": "https://home.hhnl.de"
       },
       "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}"
