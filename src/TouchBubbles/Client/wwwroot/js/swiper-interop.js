@@ -10,7 +10,7 @@
             slideToClickedSlide: true,
             on: {
                 slideChangeTransitionEnd: function (swiper) {
-                    viewModelReference.invokeMethodAsync('OnActiveIndexChanged', swiper.realIndex);
+                    viewModelReference.invokeMethodAsync('OnActiveIndexChanged', window.Swiper.obj.realIndex);
                 }
             }
         });

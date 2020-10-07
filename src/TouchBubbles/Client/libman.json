@@ -1,0 +1,14 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "color-hash@1.0.3",
+      "destination": "wwwroot/lib/color-hash/"
+    },
+    {
+      "library": "Swiper@5.4.5",
+      "destination": "wwwroot/lib/Swiper/"
+    }
+  ]
+}

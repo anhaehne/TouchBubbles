@@ -76,11 +76,23 @@ app {
 }
 
 circle {
-    transition: stroke 0.25s ease, fill 0.25s ease;
+    transition: stroke 0.25s ease, fill 0.25s ease, opacity 0.25s ease;
+}
+
+.active circle.fill {
+    opacity: 1;
+}
+
+circle.fill {
+    opacity: 0.1;
 }
 
 rect {
-    transition: y 0.1s ease-out, height 0.1s ease-out;
+    transition: y 0.25s ease-out, height 0.25s ease-out;
+}
+
+.on-drag rect {
+    transition: initial;
 }
 
 .bubble-icon {

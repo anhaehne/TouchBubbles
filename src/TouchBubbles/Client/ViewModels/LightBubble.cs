@@ -2,17 +2,16 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using Microsoft.JSInterop;
 using TouchBubbles.Client.Services;
 using TouchBubbles.Shared.Models;
 using TouchBubbles.Shared.Models.HomeAssistant;
+using TouchBubbles.Shared.Utils;
 
 namespace TouchBubbles.Client.ViewModels
 {
     public class LightBubble : EntityBubble
     {
-        private const string ON_COLOR = "#FFE20F";
-        private const string OFF_COLOR = "Transparent";
-
         private readonly IEntityService _entityService;
         private int _brightness;
 
@@ -25,14 +24,11 @@ namespace TouchBubbles.Client.ViewModels
             SupportsSlidingValue = true;
 
             _entityService = entityService;
-            BackgroundOutline = ON_COLOR;
             Icon = "mdi-lightbulb";
         }
 
         protected override void OnEntityChanged()
         {
-            BackgroundColor = Entity.State == "on" ? ON_COLOR : OFF_COLOR;
-
             var attr = Entity.Attributes.ToObject<LightAttributes>();
             _brightness = attr.Brightness;
             SlidingValue = _brightness / 255f;

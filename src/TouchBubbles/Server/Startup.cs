@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using TouchBubbles.Client.Services;
 using TouchBubbles.Server.Hubs;
 using TouchBubbles.Server.Services;
+using TouchBubbles.Server.Utils;
 using TouchBubbles.Shared;
 using TouchBubbles.Shared.Models;
 
@@ -69,6 +70,8 @@ namespace TouchBubbles.Server
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseMiddleware<AcceptEncodingMiddleware>();
+
             app.UseResponseCompression();
 
             if (env.IsDevelopment())
@@ -79,8 +82,6 @@ namespace TouchBubbles.Server
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
             }
 
             app.UseBlazorFrameworkFiles();

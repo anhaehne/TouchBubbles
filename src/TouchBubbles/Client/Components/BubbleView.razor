@@ -7,13 +7,14 @@
         <h3 class="bubble-name">@Model.Name</h3>
         <BubbleSlider
             BackgroundColor="@Model.BackgroundColor"
-            BackgroundOutline="@Model.BackgroundOutline"
+            BackgroundOutline="@Model.BackgroundColor"
             Icon="@Model.Icon"
             SliderColor="Red"
             @bind-SlidingValue="Model.SlidingValue"
             SupportsSlidingValue="Model.SupportsSlidingValue"
             Enabled="IsActive"
-            OnClick="OnBubbleClickedAsync"/>
+            OnClick="OnBubbleClickedAsync"
+            IsActive="@Model.IsActive"/>
     </div>
 </div>
 

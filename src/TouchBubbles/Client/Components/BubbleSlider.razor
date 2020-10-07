@@ -1,11 +1,14 @@
 ﻿@using System.Threading
+@using TouchBubbles.Shared.Models.HomeAssistant
 @inject IJSRuntime JsRuntime;
 
 <div @onclick="OnClick">
-    <svg class="bubble-background" viewBox="0 0 100 100" preserveAspectRatio="xMidYMin slice"
+    <svg class="bubble-background @(_onDrag ? "on-drag" : string.Empty) @(IsActive ? "active" : string.Empty)" viewBox="0 0 100 100" preserveAspectRatio="xMidYMin slice"
          @ref="SvgReference"
          @ontouchstart="TouchStart"
-         @ontouchmove="TouchMove">
+         @ontouchmove="TouchMove"
+         @ontouchend="TouchEnd"
+         @ontouchcancel="TouchEnd">
 
         @if (SupportsSlidingValue)
         {
@@ -16,8 +19,9 @@
             </defs>
         }
 
-        <circle cx="50" cy="50" r="49" stroke="@BackgroundOutline" stroke-width="2" fill="@BackgroundColor"></circle>
-        <circle cx="50" cy="50" r="48" fill="red" clip-path="url(#@_id)"></circle>
+        <circle class="fill" cx="50" cy="50" r="49" fill="@BackgroundColor"></circle>
+        <circle cx="50" cy="50" r="49" stroke="@BackgroundOutline" fill="transparent" stroke-width="2"></circle>
+        <circle cx="50" cy="50" r="48" fill="yellow" opacity="0.5" clip-path="url(#@_id)"></circle>
     </svg>
     <span class="bubble-icon mdi @Icon"></span>
 </div>
@@ -40,6 +44,9 @@
     public string BackgroundOutline { get; set; }
 
     [Parameter]
+    public bool IsActive { get; set; }
+
+    [Parameter]
     public string SliderColor { get; set; }
 
     [Parameter]
@@ -59,6 +66,7 @@
     private bool? _isVerticalMove;
     private Point _start;
     private long _touchIdentifier;
+    private bool _onDrag = false;
 
     private async Task TouchStart(TouchEventArgs obj)
     {
@@ -78,6 +86,11 @@
             return;
 
         await DragAsync(new Point(touch.ClientX, touch.ClientY));
+    }
+
+    private void TouchEnd(TouchEventArgs obj)
+    {
+        _onDrag = false;
     }
 
     /// <summary>
@@ -113,6 +126,8 @@
         if (_isVerticalMove != true)
             return;
 
+        _onDrag = true;
+
         var currentY = await JsRuntime.InvokeAsync<double>("DraggableSvg.GetMousePositionY", SvgReference, newPosition.Y);
 
         var deltaY = (currentY - _touchStartY) / 100;
@@ -133,4 +148,5 @@
 
         public double Y { get; }
     }
+
 }
