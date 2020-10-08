@@ -8,19 +8,12 @@ namespace TouchBubbles.Shared.Models
     public class Bubble
     {
         private string _backgroundColor = "Red";
+        private string _backgroundColorOutline = "Red";
         private string _icon = "mdi-progress-question";
         private string _name = "Test";
         private float _slidingValue;
-
-        private readonly object _lock = new object();
-        private readonly Timer _timer;
         private bool _isActive = true;
 
-        public Bubble()
-        {
-            _timer = new Timer(200) { AutoReset = false };
-            _timer.Elapsed += (sender, args) => OnSlidingValueChanged(_slidingValue);
-        }
 
         public string BackgroundColor
         {
@@ -28,6 +21,15 @@ namespace TouchBubbles.Shared.Models
             set
             {
                 _backgroundColor = value;
+                InvokeBubbleChanged();
+            }
+        }
+        public string BackgroundColorOutline
+        {
+            get => _backgroundColorOutline;
+            set
+            {
+                _backgroundColorOutline = value;
                 InvokeBubbleChanged();
             }
         }
@@ -77,17 +79,8 @@ namespace TouchBubbles.Shared.Models
             get => _slidingValue;
             set
             {
-                if (_slidingValue == value)
-                    return;
-
                 _slidingValue = value;
-
-                // Reset time to debounce the OnSlidingValueChanged callback
-                lock (_lock)
-                {
-                    _timer.Stop();
-                    _timer.Start();
-                }
+                OnSlidingValueChanged(value);
             }
         }
 

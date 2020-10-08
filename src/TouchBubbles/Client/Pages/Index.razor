@@ -14,7 +14,7 @@
             var bubble = _bubbles[i];
 
             <div class="swiper-slide">
-                <BubbleView Model="bubble" Index="index" ActiveIndex="_activeIndex"/>
+                <BubbleView Model="bubble" Index="index" ActiveIndex="_activeIndex" />
             </div>
         }
     </div>
@@ -27,16 +27,18 @@
 {
     private int _activeIndex;
     private readonly IList<Bubble> _bubbles = new List<Bubble>
-    {
+{
         new Bubble
         {
-            BackgroundColor = "Gray",
+            BackgroundColor = "LightGray",
+            BackgroundColorOutline = "Gray",
             Name = "Settings",
             Icon = "mdi-cog-outline"
         },
         new Bubble
         {
-            BackgroundColor = "LightGray",
+            BackgroundColorOutline = "Gray",
+            BackgroundColor = "Transparent",
             Name = "Add entity",
             Icon = "mdi-plus"
         }

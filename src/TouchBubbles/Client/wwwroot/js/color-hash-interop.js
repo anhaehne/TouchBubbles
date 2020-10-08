@@ -1,1 +1,0 @@
-﻿window.ColorHash = new ColorHash();
