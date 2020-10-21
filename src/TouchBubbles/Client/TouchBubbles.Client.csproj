@@ -5,7 +5,6 @@
     <RazorLangVersion>3.0</RazorLangVersion>
     <Nullable>enable</Nullable>
     <LangVersion>Latest</LangVersion>
-    <WarningsAsErrors>CS8600;CS8602;CS8603</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

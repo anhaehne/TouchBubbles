@@ -23,14 +23,14 @@
     </div>
     <!-- Add Pagination -->
     <div class="swiper-pagination"></div>
-    @*<div class="gradient-overlay"></div>*@
+    <div class="gradient-overlay"></div>
 </div>
 
 @code
 {
     private int _activeIndex;
-    private IList<Bubble> _bubbles;
-    private IList<Bubble> _defaultBubbles;
+    private IList<Bubble> _bubbles = new List<Bubble>();
+    private IList<Bubble> _defaultBubbles = new List<Bubble>();
 
     protected override async Task OnInitializedAsync()
     {

@@ -104,7 +104,10 @@ namespace TouchBubbles.Server.Services
             switch (apiEvent.EventType)
             {
                 case "state_changed":
-                    var eventData = apiEvent.Data.ToObject<WebsocketApiStateChangedEventData>();
+                    var eventData = apiEvent.Data.ToObject<WebsocketApiStateChangedEventData?>();
+
+                    if (eventData?.NewState == null)
+                        return;
 
                     await _haHubContext.Clients.All.EntityUpdated(eventData.NewState);
 
@@ -115,14 +118,14 @@ namespace TouchBubbles.Server.Services
         private async Task<WebsocketApiMessage> ReadNextEventAsync()
         {
             var buffer = new ArraySegment<byte>(new byte[8192]);
-            WebSocketReceiveResult? result = null;
+            WebSocketReceiveResult? result;
 
             await using var ms = new MemoryStream();
 
             do
             {
                 result = await _webSocket!.ReceiveAsync(buffer, _cancellationTokenSource!.Token);
-                ms.Write(buffer.Array, buffer.Offset, result.Count);
+                ms.Write(buffer.Array!, buffer.Offset, result.Count);
             } while (!result.EndOfMessage);
 
             ms.Seek(0, SeekOrigin.Begin);
@@ -147,7 +150,7 @@ namespace TouchBubbles.Server.Services
             public long Id { get; set; }
 
             [JsonPropertyName("type")]
-            public string Type { get; set; }
+            public string? Type { get; set; }
 
             [JsonPropertyName("event")]
             public JsonElement Event { get; set; }
@@ -159,10 +162,10 @@ namespace TouchBubbles.Server.Services
             public DateTimeOffset TimeFired { get; set; }
 
             [JsonPropertyName("event_type")]
-            public string EventType { get; set; }
+            public string? EventType { get; set; }
 
             [JsonPropertyName("origin")]
-            public string Origin { get; set; }
+            public string? Origin { get; set; }
 
             [JsonPropertyName("data")]
             public JsonElement Data { get; set; }
@@ -171,13 +174,13 @@ namespace TouchBubbles.Server.Services
         private class WebsocketApiStateChangedEventData
         {
             [JsonPropertyName("entity_id")]
-            public string EntityId { get; set; }
+            public string? EntityId { get; set; }
 
             [JsonPropertyName("new_state")]
-            public Entity NewState { get; set; }
+            public Entity? NewState { get; set; }
 
             [JsonPropertyName("old_state")]
-            public Entity OldState { get; set; }
+            public Entity? OldState { get; set; }
         }
     }
 }

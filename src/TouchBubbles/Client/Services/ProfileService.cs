@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using TouchBubbles.Shared;
 using TouchBubbles.Shared.Models;
@@ -36,7 +35,7 @@ namespace TouchBubbles.Client.Services
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IEntityService _entityService;
         private List<Profile> _profiles = new List<Profile>();
-        private Profile _activeProfile;
+        private Profile _activeProfile = Profile.Empty;
         private bool _isInitialized;
 
         public ProfileService(IHttpClientFactory httpClientFactory, IEntityService entityService)

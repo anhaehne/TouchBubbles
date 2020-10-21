@@ -21,21 +21,17 @@
 @code {
 
     [Parameter]
-    public Bubble Model { get; set; }
-
-    [Parameter]
-    public int Index
+    public Bubble Model
     {
-        get => _index;
-        set => _index = value;
+        get => _model ??= new Bubble();
+        set => _model = value;
     }
 
     [Parameter]
-    public int ActiveIndex
-    {
-        get => _activeIndex;
-        set => _activeIndex = value;
-    }
+    public int Index { get; set; }
+
+    [Parameter]
+    public int ActiveIndex { get; set; }
 
     public bool IsActive => ActiveIndex == Index;
 
@@ -63,6 +59,5 @@
         await Model.OnClickAsync();
     }
 
-    private int _index;
-    private int _activeIndex;
+    private Bubble? _model;
 }

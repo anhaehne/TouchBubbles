@@ -17,6 +17,12 @@ namespace TouchBubbles.Shared.Models
             Entities.CollectionChanged += (s, e) => Changed?.Invoke(this, this);
         }
 
+        private Profile()
+        {
+            _name = string.Empty;
+            Entities = new ObservableCollection<Entity>();
+        }
+
         public string Name
         {
             get => _name;
@@ -34,5 +40,7 @@ namespace TouchBubbles.Shared.Models
         public event EventHandler<Profile>? Changed;
 
         public static ProfileDto ToDto(Profile profile) => new ProfileDto { Id = profile.Id, EntityIds = profile.Entities.Select(x => x.Id).ToList(), Name = profile.Name };
+
+        public static Profile Empty { get; } = new Profile();
     }
 }

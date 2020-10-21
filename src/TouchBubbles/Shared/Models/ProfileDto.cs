@@ -8,12 +8,12 @@ namespace TouchBubbles.Shared.Models
     public class ProfileDto
     {
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [JsonPropertyName("id")]
         public Guid Id { get; set; }
 
         [JsonPropertyName("entity_ids")]
-        public IReadOnlyCollection<string> EntityIds { get; set; }
+        public IReadOnlyCollection<string> EntityIds { get; set; } = Array.Empty<string>();
     }
 }
