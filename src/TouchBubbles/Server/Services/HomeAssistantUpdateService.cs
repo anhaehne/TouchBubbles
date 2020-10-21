@@ -17,13 +17,13 @@ namespace TouchBubbles.Server.Services
 {
     public class HomeAssistantUpdateService : IHostedService
     {
-        private readonly ILogger<HomeAssistantUpdateService> _logger;
         private readonly IOptions<HomeAssistantConfiguration> _haConfig;
         private readonly IHubContext<HomeAssistantHub, IHomeAssistantHubClient> _haHubContext;
-        private CancellationTokenSource _cancellationTokenSource;
+        private readonly ILogger<HomeAssistantUpdateService> _logger;
+        private CancellationTokenSource? _cancellationTokenSource;
         private long _id;
-        private Task _receiveTask;
-        private ClientWebSocket _webSocket;
+        private Task? _receiveTask;
+        private ClientWebSocket? _webSocket;
 
         public HomeAssistantUpdateService(
             ILogger<HomeAssistantUpdateService> logger,
@@ -53,13 +53,15 @@ namespace TouchBubbles.Server.Services
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _cancellationTokenSource.Cancel();
-            await _receiveTask;
+            _cancellationTokenSource?.Cancel();
+
+            if(_receiveTask != null)
+                await _receiveTask;
         }
 
         private async Task ReceiveAsync()
         {
-            while (!_cancellationTokenSource.IsCancellationRequested)
+            while (!_cancellationTokenSource?.IsCancellationRequested ?? false)
             {
                 var received = await ReadNextEventAsync();
                 await HandleMessageAsync(received);
@@ -113,13 +115,13 @@ namespace TouchBubbles.Server.Services
         private async Task<WebsocketApiMessage> ReadNextEventAsync()
         {
             var buffer = new ArraySegment<byte>(new byte[8192]);
-            WebSocketReceiveResult result = null;
+            WebSocketReceiveResult? result = null;
 
             await using var ms = new MemoryStream();
 
             do
             {
-                result = await _webSocket.ReceiveAsync(buffer, _cancellationTokenSource.Token);
+                result = await _webSocket!.ReceiveAsync(buffer, _cancellationTokenSource!.Token);
                 ms.Write(buffer.Array, buffer.Offset, result.Count);
             } while (!result.EndOfMessage);
 
@@ -132,8 +134,11 @@ namespace TouchBubbles.Server.Services
 
         private async Task SendResponseAsync<T>(T response)
         {
+            if (_webSocket == null)
+                return;
+
             var bytes = JsonSerializer.SerializeToUtf8Bytes(response);
-            await _webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, _cancellationTokenSource.Token);
+            await _webSocket.SendAsync(bytes, WebSocketMessageType.Text, true, _cancellationTokenSource?.Token ?? CancellationToken.None);
         }
 
         private class WebsocketApiMessage

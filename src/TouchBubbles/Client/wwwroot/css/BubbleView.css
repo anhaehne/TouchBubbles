@@ -1,0 +1,33 @@
+﻿.swiper-slide {
+    height: 100%;
+}
+
+.swiper-pagination-bullet {
+    background: darkgray;
+    width: 3vw;
+    height: 3vw;
+}
+
+.bubble {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bubble-name {
+    color: white;
+    margin-bottom: 2vw;
+    margin-top: 0;
+    font-weight: normal;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bubble-content {
+    width: 100%;
+    text-align: center;
+}

@@ -1,0 +1,29 @@
+﻿@using TouchBubbles.Client.Services
+@using TouchBubbles.Shared.Models
+@inject IProfileService ProfileService
+@inject IOverlayService OverlayService
+
+<div class="add-profile-overlay">
+    @foreach (var profile in ProfileService.Profiles)
+    {
+        <div class="profile" @onclick="() => SelectProfile(profile)">
+            @profile.Name
+        </div>
+    }
+</div>
+<button @onclick="OnAddProfileClick">Add Profile</button>
+
+@code {
+
+    private void OnAddProfileClick()
+    {
+        ProfileService.AddProfileAsync(new Profile("New Profile"));
+    }
+
+    private void SelectProfile(Profile profile)
+    {
+        ProfileService.ActiveProfile = profile;
+        OverlayService.HideOverlay();
+    }
+
+}

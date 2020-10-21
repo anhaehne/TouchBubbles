@@ -1,6 +1,10 @@
 ﻿
 class DraggableSvg {
 
+
+    innerCircleStart = 2;
+    innerCircleDiameter = 96; // The inner circle has a radius of 48;
+
     _touchStartY = undefined
     _slidingValueStart = undefined
     _slidingValueCurrent = undefined
@@ -83,8 +87,8 @@ class DraggableSvg {
         this.setOnDrag(true);
 
         const currentY = this.getMousePositionY(this._svg, newPosition.y);
-        const deltaY = (currentY - this._touchStartY) / 100;
-        const newValue = Math.max(Math.min(this._slidingValueStart - deltaY, 100), 0);
+        const deltaY = (currentY - this._touchStartY) / this.innerCircleDiameter;
+        const newValue = Math.max(Math.min(this._slidingValueStart - deltaY, 1), 0);
 
         if (Math.abs(this._slidingValue - newValue) < 0.01)
             return;
@@ -141,8 +145,7 @@ class DraggableSvg {
         if (!this._clipRect || !this._propagateSlidingValueChanged)
             return;
 
-        this._clipRect.setAttribute("y", 100 - Math.round(this._slidingValue * 100));
-        this._clipRect.setAttribute("height", Math.round(this._slidingValue * 100));
+        this._clipRect.setAttribute("y", (this.innerCircleDiameter - Math.round(this._slidingValue * this.innerCircleDiameter, 2)) + this.innerCircleStart);
 
         this._propagateSlidingValueChanged();
     }

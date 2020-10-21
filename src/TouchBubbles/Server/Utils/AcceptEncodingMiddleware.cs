@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 
 namespace TouchBubbles.Server.Utils
 {
@@ -26,13 +27,13 @@ namespace TouchBubbles.Server.Utils
 
         public async Task Invoke(HttpContext context)
         {
-            var acceptEncoding = context.Request.Headers["Accept-Encoding"].ToString().Split(",").Select(x => x.Trim());
+            var acceptEncoding = context.Request.Headers["Accept-Encoding"].ToString().Split(",").Select(x => x.Trim()).ToList();
 
             // Check if the request source is the ingress reverse proxy and the accept encoding contains brotli (br). If so remove it from the list.
             if (Equals(context.Connection.RemoteIpAddress.MapToIPv4(), _ingressHost) && acceptEncoding.Contains("br"))
                 context.Request.Headers["Accept-Encoding"] =
                     new StringValues(string.Join(", ", acceptEncoding.Except(new[] { "br" })));
-
+            
             await _next(context);
         }
     }

@@ -1,0 +1,41 @@
+﻿.overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 0s linear 0.2s, opacity 0.2s ease-out;
+}
+
+.overlay.active {
+    visibility: visible;
+    opacity: 1;
+    transition: visibility 0s, opacity 0.2s ease-out;
+}
+
+.overlay-background {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: -1;
+    opacity: 0.95;
+}
+
+.overlay-content {
+    height: 100%;
+    overflow: auto;
+}
+
+.overlay .close-button {
+    position: fixed;
+    right: 10px;
+    top: 10px;
+    background: none;
+    border: none;
+    font-size: 3vw;
+}

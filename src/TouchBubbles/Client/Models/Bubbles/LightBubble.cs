@@ -2,13 +2,10 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Microsoft.JSInterop;
 using TouchBubbles.Client.Services;
-using TouchBubbles.Shared.Models;
 using TouchBubbles.Shared.Models.HomeAssistant;
-using TouchBubbles.Shared.Utils;
 
-namespace TouchBubbles.Client.ViewModels
+namespace TouchBubbles.Client.Models.Bubbles
 {
     public class LightBubble : EntityBubble
     {
@@ -22,9 +19,7 @@ namespace TouchBubbles.Client.ViewModels
                 throw new ArgumentException("Entity has to be a light entity.");
 
             SupportsSlidingValue = true;
-
             _entityService = entityService;
-            Icon = "mdi-lightbulb";
         }
 
         protected override void OnEntityChanged()
@@ -36,11 +31,13 @@ namespace TouchBubbles.Client.ViewModels
 
         public override async Task OnClickAsync()
         {
-            Entity.UpdateWith(await _entityService.CallServiceAsync("light", "toggle", Entity.Id));
+            Entity.State = Entity.State == "on" ? "off" : "on";
+            await _entityService.CallServiceAsync("light", "toggle", Entity.Id);
         }
 
         protected override async void OnSlidingValueChanged(float newValue)
         {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
             if (newValue < 0 || _entityService == null)
                 return;
 

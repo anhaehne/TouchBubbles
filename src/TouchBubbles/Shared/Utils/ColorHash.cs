@@ -10,12 +10,12 @@ namespace TouchBubbles.Shared.Utils
 {
     public static class ColorHash
     {
-        private static double[] _saturationValues = new[] { 0.35, 0.5, 0.65 };
-        private static double[] _luminanceValues = new[] { 0.35, 0.4, 0.5 };
+        private static readonly double[] _saturationValues = new[] { 0.35, 0.5, 0.65 };
+        private static readonly double[] _luminanceValues = new[] { 0.35, 0.4, 0.5 };
 
         public static (int Hue, double Saturation, double Luminance) HSL(string str)
         {
-            var hash = BKDRHash(str);
+            var hash = GetMd5Hash(str);
 
             var hue = (int)(hash % 359);
 
@@ -89,28 +89,11 @@ namespace TouchBubbles.Shared.Utils
             }
         }
 
-        private static long BKDRHash(string str)
+        private static long GetMd5Hash(string str)
         {
             MD5 md5Hasher = MD5.Create();
             var hashed = md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(str));
             return Math.Abs(BitConverter.ToInt32(hashed, 0));
-
-            //var seed = 131;
-            //var seed2 = 137;
-            //var hash = 0L;
-            //// make hash more sensitive for short string like 'a', 'b', 'c'
-            //str += 'x';
-            //// Note: Number.MAX_SAFE_INTEGER equals 9007199254740991
-            //var MAX_SAFE_INTEGER = 9007199254740991 / seed2;
-            //for (var i = 0; i < str.Length; i++)
-            //{
-            //    if (hash > MAX_SAFE_INTEGER)
-            //    {
-            //        hash = hash / seed2;
-            //    }
-            //    hash = hash * seed + str[i];
-            //}
-            //return hash;
         }
     }
 }

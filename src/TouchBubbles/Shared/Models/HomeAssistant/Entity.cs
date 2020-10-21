@@ -12,19 +12,26 @@ namespace TouchBubbles.Shared.Models.HomeAssistant
         private static Mapper _mapper =
             new Mapper(new MapperConfiguration(builder => builder.CreateMap<Entity, Entity>()));
 
+        private string? _icon;
+
         [JsonPropertyName("entity_id")]
-        public string Id { get; set; }
+        public string Id { get; set; } = "unknown";
 
         [JsonIgnore]
-        public string Type => Id?.Split(".").FirstOrDefault() ?? "Unknown";
+        public string Type => Id?.Split(".").FirstOrDefault() ?? "unknown";
 
         [JsonIgnore]
-        public string Name => Attributes.TryGetProperty("friendly_name", out var propValue) 
-            ? propValue.GetString()
-            : Id?.Split(".").LastOrDefault();
+        public string Name => GetName();
+
+        [JsonIgnore]
+        public string Icon
+        {
+            get => _icon ?? GetIconOrDefault();
+            set => _icon = value;
+        }
 
         [JsonPropertyName("state")]
-        public string State { get; set; }
+        public string? State { get; set; }
 
         [JsonPropertyName("attributes")]
         public JsonElement Attributes { get; set; }
@@ -35,14 +42,34 @@ namespace TouchBubbles.Shared.Models.HomeAssistant
         [JsonPropertyName("last_modified")]
         public DateTimeOffset LastModified { get; set; }
 
-        public Dictionary<string, string> Context { get; set; }
+        public Dictionary<string, string>? Context { get; set; }
 
-        public event Action EntityChanged;
+        public event Action? EntityChanged;
 
         public void UpdateWith(Entity entity)
         {
             _mapper.Map(entity, this);
             EntityChanged?.Invoke();
+        }
+
+        private string GetName()
+        {
+            if (Attributes.TryGetProperty("friendly_name", out var propValue) && !string.IsNullOrEmpty(propValue.GetString()))
+                return propValue.GetString();
+
+            var lastIdPart = Id?.Split(".").LastOrDefault();
+
+            if (!string.IsNullOrEmpty(lastIdPart))
+                return lastIdPart;
+
+            return Id ?? "Unknown";
+        }
+
+        private string GetIconOrDefault()
+        {
+            return Attributes.TryGetProperty("icon", out var propValue) && propValue.GetString().Contains("mdi:")
+                ? propValue.GetString().Replace(":", "-")
+                : "mdi-puzzle";
         }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace TouchBubbles.Shared
+﻿namespace TouchBubbles.Shared
 {
     public class EndPoints
     {

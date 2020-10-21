@@ -8,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using TouchBubbles.Client.Services;
 using TouchBubbles.Server.Hubs;
 using TouchBubbles.Server.Services;
 using TouchBubbles.Server.Utils;
@@ -55,7 +54,7 @@ namespace TouchBubbles.Server
                         haConfig.SupervisorToken);
                 });
 
-            services.AddTransient<IEntityService, EntityService>();
+            services.AddTransient<IProfileService, ProfileService>();
             services.AddTransient<IHomeAssistantService, HomeAssistantService>();
             services.AddHostedService<HomeAssistantUpdateService>();
 
@@ -64,6 +63,7 @@ namespace TouchBubbles.Server
                 {
                     haOptions.HomeAssistantApi = Configuration["HOME_ASSISTANT_API"] ?? "http://supervisor/core/";
                     haOptions.SupervisorToken = Configuration["SUPERVISOR_TOKEN"];
+                    haOptions.DataDirectory = Configuration["DATA_DIRECTORY"] ?? "/data";
                 });
         }
 
@@ -85,7 +85,14 @@ namespace TouchBubbles.Server
             }
 
             app.UseBlazorFrameworkFiles();
-            app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                OnPrepareResponse = context =>
+                {
+                    context.Context.Response.Headers.Add("Cache-Control", "no-cache, no-store");
+                    context.Context.Response.Headers.Add("Expires", "-1");
+                }
+            });
 
             app.UseRouting();
 

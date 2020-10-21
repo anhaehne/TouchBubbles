@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
-using Timer = System.Timers.Timer;
 
 namespace TouchBubbles.Shared.Models
 {
@@ -10,9 +8,9 @@ namespace TouchBubbles.Shared.Models
         private string _backgroundColor = "Red";
         private string _backgroundColorOutline = "Red";
         private string _icon = "mdi-progress-question";
+        private bool _isActive = true;
         private string _name = "Test";
         private float _slidingValue;
-        private bool _isActive = true;
 
 
         public string BackgroundColor
@@ -24,6 +22,7 @@ namespace TouchBubbles.Shared.Models
                 InvokeBubbleChanged();
             }
         }
+
         public string BackgroundColorOutline
         {
             get => _backgroundColorOutline;
@@ -64,16 +63,6 @@ namespace TouchBubbles.Shared.Models
             }
         }
 
-        public virtual Task OnClickAsync()
-        {
-            return Task.CompletedTask;
-        }
-
-        protected virtual void OnSlidingValueChanged(float newValue)
-        {
-
-        }
-
         public float SlidingValue
         {
             get => _slidingValue;
@@ -86,8 +75,20 @@ namespace TouchBubbles.Shared.Models
 
         public bool SupportsSlidingValue { get; set; }
 
-        protected void InvokeBubbleChanged() => BubbleChanged?.Invoke();
+        public virtual Task OnClickAsync()
+        {
+            return Task.CompletedTask;
+        }
 
-        public event Action BubbleChanged;
+        public event Action? BubbleChanged;
+
+        protected virtual void OnSlidingValueChanged(float newValue)
+        {
+        }
+
+        protected void InvokeBubbleChanged()
+        {
+            BubbleChanged?.Invoke();
+        }
     }
 }

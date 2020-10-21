@@ -1,0 +1,44 @@
+﻿@using TouchBubbles.Client.Services
+@inject IOverlayService OverlayService
+<div class="overlay @(_isShowingOverlay ? "active" : string.Empty)">
+    <div class="overlay-background" style="background-color: @_backgroundColor"></div>
+    <button class="close-button" @onclick="() => _isShowingOverlay = false">
+        <span class="mdi mdi-close"></span>
+    </button>
+    <div class="overlay-content">
+        @_content
+    </div>
+</div>
+
+@code {
+    private bool _isShowingOverlay = false;
+    private string _backgroundColor = "gray";
+    private RenderFragment? _content;
+
+    protected override void OnInitialized()
+    {
+        OverlayService.OverlayShowing += OnOverlayShowing;
+    }
+
+    private void OnOverlayShowing(object sender, OverlayOptions? e)
+    {
+        if (e == null)
+        {
+            _isShowingOverlay = false;
+            _content = null;
+            StateHasChanged();
+            return;
+        }
+
+        _content = builder =>
+        {
+            builder.OpenComponent(0, e.ContentType);
+            builder.CloseComponent();
+        };
+
+        _backgroundColor = e.BackgroundColor;
+        _isShowingOverlay = true;
+        StateHasChanged();
+    }
+
+}

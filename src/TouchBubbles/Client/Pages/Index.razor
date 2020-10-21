@@ -1,10 +1,13 @@
 ﻿@page "/"
 @using TouchBubbles.Client.Services
-@using TouchBubbles.Client.ViewModels
 @using TouchBubbles.Shared.Models
 @using TouchBubbles.Client.Components
+@using TouchBubbles.Client.Models.Bubbles
+@inject IOverlayService OverlayService;
 @inject IEntityService EntityService;
 @inject IJSRuntime JsRuntime;
+@inject IProfileService ProfileService;
+@inject IBubbleFactory BubbleFactory;
 
 <div class="swiper-container">
     <div class="swiper-wrapper">
@@ -20,38 +23,29 @@
     </div>
     <!-- Add Pagination -->
     <div class="swiper-pagination"></div>
+    @*<div class="gradient-overlay"></div>*@
 </div>
-
 
 @code
 {
     private int _activeIndex;
-    private readonly IList<Bubble> _bubbles = new List<Bubble>
-{
-        new Bubble
-        {
-            BackgroundColor = "LightGray",
-            BackgroundColorOutline = "Gray",
-            Name = "Settings",
-            Icon = "mdi-cog-outline"
-        },
-        new Bubble
-        {
-            BackgroundColorOutline = "Gray",
-            BackgroundColor = "Transparent",
-            Name = "Add entity",
-            Icon = "mdi-plus"
-        }
-    };
+    private IList<Bubble> _bubbles;
+    private IList<Bubble> _defaultBubbles;
 
     protected override async Task OnInitializedAsync()
     {
-        await EntityService.InitializeAsync();
+        _defaultBubbles = GetDefaultBubbles();
+        _bubbles = _defaultBubbles.ToList();
 
-        foreach (var entity in EntityService.Entities.Where(x => x.Type == "light").Reverse())
+        await EntityService.InitializeAsync();
+        await ProfileService.InitializeAsync();
+
+        ProfileService.ActiveProfileChanged += (sender, profile) =>
         {
-            _bubbles.Insert(0, new LightBubble(entity, EntityService));
-        }
+            _bubbles = _defaultBubbles.ToList();
+            UpdateBubbles();
+        };
+        UpdateBubbles();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -64,6 +58,45 @@
         }
 
         await UpdateSlidesAsync();
+    }
+
+    private void UpdateBubbles()
+    {
+        var entityBubbles = _bubbles.OfType<EntityBubble>().ToList();
+        var removedBubbles = entityBubbles.Where(x => !ProfileService.ActiveProfile.Entities.Contains(x.Entity));
+
+        foreach (var removedBubble in removedBubbles)
+            _bubbles.Remove(removedBubble);
+
+        for (var i = 0; i < ProfileService.ActiveProfile.Entities.Count; i++)
+        {
+            if (i < entityBubbles.Count && entityBubbles[i].Entity == ProfileService.ActiveProfile.Entities[i])
+                continue;
+
+            var newBubble = BubbleFactory.CreateBubble(ProfileService.ActiveProfile.Entities[i]);
+
+            entityBubbles.Insert(i, newBubble);
+            _bubbles.Insert(i, newBubble);
+        }
+
+        StateHasChanged();
+    }
+
+    private IList<Bubble> GetDefaultBubbles()
+    {
+        return new List<Bubble>
+        {
+            new Bubble
+            {
+                BackgroundColor = "LightGray",
+                BackgroundColorOutline = "Gray",
+                Name = "Settings",
+                Icon = "mdi-cog-outline"
+            },
+            new AddEntityBubble(OverlayService),
+            new ReloadBubble(JsRuntime),
+            new SelectProfileBubble(OverlayService),
+        };
     }
 
     private async Task UpdateSlidesAsync()

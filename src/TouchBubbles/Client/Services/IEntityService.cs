@@ -7,9 +7,9 @@ namespace TouchBubbles.Client.Services
 {
     public interface IEntityService
     {
-        List<Entity> Entities { get; set; }
+        List<Entity> Entities { get; }
 
-        Task<Entity> CallServiceAsync(string domain, string service, string entityId);
+        Task CallServiceAsync(string domain, string service, string entityId);
 
         Task<JsonElement> CallServiceAsync<T>(string domain, string service, T data);
 

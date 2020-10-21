@@ -2,7 +2,7 @@
 using TouchBubbles.Shared.Models.HomeAssistant;
 using TouchBubbles.Shared.Utils;
 
-namespace TouchBubbles.Client.ViewModels
+namespace TouchBubbles.Client.Models.Bubbles
 {
     public class EntityBubble : Bubble
     {
@@ -11,7 +11,8 @@ namespace TouchBubbles.Client.ViewModels
             BackgroundColor = backgroundColorOn ?? ColorHash.HEX(entity.Id);
             BackgroundColorOutline = BackgroundColor;
             Entity = entity;
-            Name = Entity.Name;
+            Name = entity.Name;
+            Icon = entity.Icon;
             Entity.EntityChanged += () =>
             {
                 OnEntityChangedInternal();

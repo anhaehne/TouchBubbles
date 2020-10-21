@@ -16,6 +16,7 @@
             freeMode: true,
             freeModeSticky: true,
             freeModeMomentumRatio: 0.5,
+            spaceBetween: window.innerWidth / 10,
         });
 }
 

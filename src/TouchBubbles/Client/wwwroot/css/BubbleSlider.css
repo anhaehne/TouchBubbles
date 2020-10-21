@@ -1,0 +1,39 @@
+﻿.bubble-background {
+    width: 100%;
+    padding-bottom: 100%;
+    height: 1px;
+    overflow: visible;
+}
+
+circle {
+    transition: stroke 0.25s ease, fill 0.25s ease, opacity 0.25s ease;
+}
+
+.active circle.fill {
+    opacity: 1;
+}
+
+circle.fill {
+    opacity: 0.1;
+}
+
+rect {
+    transition: y 0.25s ease-out, height 0.25s ease-out;
+}
+
+.on-drag rect {
+    transition: initial;
+}
+
+.bubble-icon {
+    color: white;
+    left: 50%;
+    top: 50%;
+    height: 20vw;
+    width: 20vw;
+    margin-top: -10vw;
+    margin-left: -10vw;
+    font-size: 20vw;
+    position: absolute;
+    pointer-events: none;
+}

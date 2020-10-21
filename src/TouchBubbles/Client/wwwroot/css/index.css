@@ -1,0 +1,20 @@
+﻿.main { height: 100%; }
+
+.swiper-container {
+    height: 100%;
+}
+
+.swiper-wrapper {
+    height: 100%;
+}
+
+.gradient-overlay {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+    background: linear-gradient(to right, rgba(0,0,0,1) 2%,rgba(0,0,0,0) 25%,rgba(0,0,0,0) 75%,rgba(0,0,0,1) 98%);
+    z-index: 99;
+}
