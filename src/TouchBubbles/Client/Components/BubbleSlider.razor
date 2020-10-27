@@ -3,7 +3,7 @@
 @inject IJSRuntime JsRuntime;
 
 <div @onclick="OnClick">
-    <svg class="bubble-background @(IsActive ? "active" : string.Empty)" viewBox="0 0 100 100" preserveAspectRatio="xMidYMin slice" @ref="SvgReference">
+    <svg class="bubble-background" viewBox="0 0 100 100" preserveAspectRatio="xMidYMin slice" @ref="SvgReference">
 
         <defs>
             <clipPath id="@_id">
@@ -50,21 +50,7 @@
     public string BackgroundOutline { get; set; } = "#FFFFFF";
 
     [Parameter]
-    public bool IsActive { get; set; }
-
-    [Parameter]
     public string SliderColor { get; set; } = "#FFFFFF";
-
-    [Parameter]
-    public bool Enabled
-    {
-        get => _enabled;
-        set
-        {
-            _enabled = value;
-            UpdateIsEnabledValue(value);
-        }
-    }
 
     [Parameter]
     public EventCallback<float> SlidingValueChanged { get; set; }
@@ -77,14 +63,13 @@
 
     private string _id = Guid.NewGuid().ToString();
     private float _slidingValue;
-    private bool _enabled;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             var viewModelReference = DotNetObjectReference.Create(this);
-            JsReference = await JsRuntime.InvokeAsync<int>("DraggableSvg.Create", viewModelReference, SvgReference, SlidingValue, Enabled);
+            JsReference = await JsRuntime.InvokeAsync<int>("DraggableSvg.Create", viewModelReference, SvgReference, SlidingValue, true);
         }
     }
 
@@ -102,13 +87,4 @@
 
         await JsRuntime.InvokeVoidAsync("DraggableSvg.SetSlidingValue", JsReference, newValue);
     }
-
-    private async void UpdateIsEnabledValue(bool isEnabled)
-    {
-        if (JsReference == 0)
-            return;
-
-        await JsRuntime.InvokeVoidAsync("DraggableSvg.SetIsEnabled", JsReference, isEnabled);
-    }
-
 }

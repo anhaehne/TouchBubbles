@@ -1,0 +1,15 @@
+﻿.select-entities-overlay {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.select-entities-overlay .entities {
+    flex: auto;
+    overflow: auto
+}
+
+.select-entities-overlay .header {
+    margin-top: 0.5em;
+    margin-bottom: 0.2em;
+}

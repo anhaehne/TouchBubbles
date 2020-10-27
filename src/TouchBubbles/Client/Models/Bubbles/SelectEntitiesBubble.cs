@@ -5,22 +5,22 @@ using TouchBubbles.Shared.Models;
 
 namespace TouchBubbles.Client.Models.Bubbles
 {
-    public class AddEntityBubble : Bubble
+    public class SelectEntitiesBubble : Bubble
     {
         private readonly IOverlayService _overlayService;
 
-        public AddEntityBubble(IOverlayService overlayService)
+        public SelectEntitiesBubble(IOverlayService overlayService)
         {
             BackgroundColorOutline = "Gray";
             BackgroundColor = "Transparent";
-            Name = "Add entity";
+            Name = "Select entities";
             Icon = "mdi-plus";
             _overlayService = overlayService;
         }
 
         public override Task OnClickAsync()
         {
-            _overlayService.ShowOverlay<AddEntityOverlay>();
+            _overlayService.ShowOverlay<SelectEntitiesOverlay>();
             return Task.CompletedTask;
         }
     }

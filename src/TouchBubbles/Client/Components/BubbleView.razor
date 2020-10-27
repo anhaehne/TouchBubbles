@@ -12,9 +12,7 @@
             SliderColor="Red"
             @bind-SlidingValue="Model.SlidingValue"
             SupportsSlidingValue="Model.SupportsSlidingValue"
-            Enabled="IsActive"
-            OnClick="OnBubbleClickedAsync"
-            IsActive="@Model.IsActive"/>
+            OnClick="OnBubbleClickedAsync"/>
     </div>
 </div>
 
@@ -26,17 +24,6 @@
         get => _model ??= new Bubble();
         set => _model = value;
     }
-
-    [Parameter]
-    public int Index { get; set; }
-
-    [Parameter]
-    public int ActiveIndex { get; set; }
-
-    public bool IsActive => ActiveIndex == Index;
-
-    [Parameter]
-    public EventCallback<int> ActiveIndexChanged { get; set; }
 
     ElementReference SvgReference { get; set; }
 
@@ -53,9 +40,6 @@
 
     private async void OnBubbleClickedAsync()
     {
-        if (Index != ActiveIndex)
-            return;
-
         await Model.OnClickAsync();
     }
 

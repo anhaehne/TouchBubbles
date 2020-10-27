@@ -4,9 +4,10 @@
 }
 
 html {
-    height: 100%;
-    overflow: hidden;
+    height:100%;
+    overflow:hidden;
 }
+
 body {
     height: 100%;
     margin: 0;
@@ -16,6 +17,12 @@ body {
     overflow: hidden;
     font-size: 3vw;
 }
+
 app {
     margin: 0;
+}
+
+input[type=checkbox] {
+    height:3vw;
+    width: 3vw;
 }

@@ -42,9 +42,7 @@ namespace TouchBubbles.Server.Services
 
                 profiles.Add(profile);
 
-                var file = new FileInfo(GetConfigPath());
-                await using var fs = file.OpenWrite();
-                await JsonSerializer.SerializeAsync(fs, profiles);
+                await WriteProfilesAsync(profiles);
             }
             finally
             {

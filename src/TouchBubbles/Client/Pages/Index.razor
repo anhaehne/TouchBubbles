@@ -11,24 +11,20 @@
 
 <div class="swiper-container">
     <div class="swiper-wrapper">
-        @for (var i = 0; i < _bubbles.Count; i++)
+        @foreach (var bubble in _bubbles)
         {
-            var index = i;
-            var bubble = _bubbles[i];
-
             <div class="swiper-slide">
-                <BubbleView Model="bubble" Index="index" ActiveIndex="_activeIndex" />
+                <BubbleView Model="bubble" />
             </div>
         }
     </div>
     <!-- Add Pagination -->
     <div class="swiper-pagination"></div>
-    <div class="gradient-overlay"></div>
+    @*<div class="gradient-overlay"></div>*@
 </div>
 
 @code
 {
-    private int _activeIndex;
     private IList<Bubble> _bubbles = new List<Bubble>();
     private IList<Bubble> _defaultBubbles = new List<Bubble>();
 
@@ -93,7 +89,7 @@
                 Name = "Settings",
                 Icon = "mdi-cog-outline"
             },
-            new AddEntityBubble(OverlayService),
+            new SelectEntitiesBubble(OverlayService),
             new ReloadBubble(JsRuntime),
             new SelectProfileBubble(OverlayService),
         };
@@ -102,12 +98,5 @@
     private async Task UpdateSlidesAsync()
     {
         await JsRuntime.InvokeAsync<string>("Swiper.Update", Array.Empty<object>());
-    }
-
-    [JSInvokable]
-    public void OnActiveIndexChanged(int newIndex)
-    {
-        _activeIndex = newIndex;
-        StateHasChanged();
     }
 }

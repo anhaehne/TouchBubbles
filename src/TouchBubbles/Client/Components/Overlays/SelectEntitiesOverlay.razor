@@ -1,0 +1,66 @@
+﻿@using TouchBubbles.Client.Services
+@using TouchBubbles.Shared.Models.HomeAssistant
+@inject IEntityService EntityService
+@inject IProfileService ProfileService 
+@inject IOverlayService OverlayService
+
+<div class="select-entities-overlay">
+    <h3 class="header">Select entities</h3>
+    <div class="entities">
+        @foreach (var model in _entities)
+        {
+            <div class="entity">
+                <input type="checkbox" @bind="model.IsSelected" />
+                <span class="mdi @model.Entity.Icon"></span>
+                @($"{model.Entity.Name} ({model.Entity.Type})")
+            </div>
+        }
+    </div>
+    <div class="buttons">
+        <button @onclick="() => OnOk()">Ok</button>
+        <button @onclick="() => OnCancel()">Cancel</button>
+    </div>
+</div>
+
+@code {
+
+    private List<EntityModel> _entities = new List<EntityModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _entities = EntityService.Entities.OrderBy(e => e.Type).ThenBy(e => e.Name).Select(e => new EntityModel(e)).ToList();
+        foreach (var model in _entities)
+        {
+            model.IsSelected = ProfileService.ActiveProfile.Entities.Contains(model.Entity);
+        }
+    }
+
+    private void OnOk()
+    {
+        ProfileService.ActiveProfile.Entities.Clear();
+
+        foreach (var model in _entities.Where(x => x.IsSelected))
+        {
+            ProfileService.ActiveProfile.Entities.Add(model.Entity);
+        }
+
+        OverlayService.HideOverlay();
+    }
+
+    private void OnCancel()
+    {
+        OverlayService.HideOverlay();
+    }
+
+    class EntityModel
+    {
+        public EntityModel(Entity entity)
+        {
+            Entity = entity;
+        }
+
+        public Entity Entity { get; }
+
+        public bool IsSelected { get; set; }
+    }
+}

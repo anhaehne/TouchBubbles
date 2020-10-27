@@ -91,17 +91,23 @@ namespace TouchBubbles.Client.Services
             {
                 foreach (var entity in innerEntities)
                 {
-                    var factory = _bubbleFactory.GetFactory(entity);
-
-                    if(factory == null)
-                        continue;
-
-                    if(entity.Icon == "mdi-puzzle")
-                        entity.Icon = factory.DefaultIcon;
-
-                    yield return entity;
+                    if(TryUpdateEntity(entity))
+                        yield return entity;
                 }
             }
+        }
+
+        private bool TryUpdateEntity(Entity entity)
+        {
+            var factory = _bubbleFactory.GetFactory(entity);
+
+            if (factory == null)
+                return false;
+
+            if (entity.Icon == "mdi-puzzle")
+                entity.Icon = factory.DefaultIcon;
+
+            return true;
         }
 
         private void UpdateEntities(IEnumerable<Entity> entities)
@@ -112,7 +118,7 @@ namespace TouchBubbles.Client.Services
 
                 if (updatedEntity != null)
                     updatedEntity?.UpdateWith(entity);
-                else
+                else if(TryUpdateEntity(entity))
                     Entities.Add(entity);
             }
         }

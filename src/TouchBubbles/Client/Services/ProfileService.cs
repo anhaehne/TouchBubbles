@@ -68,8 +68,6 @@ namespace TouchBubbles.Client.Services
             _profiles = await GetProfilesAsync();
             _activeProfile = _profiles.First();
 
-            _activeProfile.Changed += ProfileChanged;
-
             _isInitialized = true;
         }
 
@@ -112,9 +110,16 @@ namespace TouchBubbles.Client.Services
         private async Task<List<Profile>> GetProfilesAsync()
         {
             var httpClient = _httpClientFactory.CreateClient(EndPoints.BackEnd);
-            var profiles = await httpClient.GetFromJsonAsync<ProfileDto[]>("profile");
+            var profileDtos = await httpClient.GetFromJsonAsync<ProfileDto[]>("profile");
 
-            return profiles.Select(p => new Profile(p.Name, p.Id, new ObservableCollection<Entity>(GetEntities(p.EntityIds)))).ToList();
+            var profiles = profileDtos.Select(p => new Profile(p.Name, p.Id, new ObservableCollection<Entity>(GetEntities(p.EntityIds)))).ToList();
+
+            foreach (var profile in profiles)
+            {
+                profile.Changed += ProfileChanged;
+            }
+
+            return profiles;
 
             IEnumerable<Entity> GetEntities(IEnumerable<string> ids)
             {
