@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Blazored.LocalStorage;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using TouchBubbles.Shared;
 using TouchBubbles.Shared.Models;
@@ -13,13 +16,9 @@ namespace TouchBubbles.Client.Services
 {
     public interface IProfileService
     {
-        Profile ActiveProfile { get; set; }
+        IObservable<Profile> ActiveProfile { get; }
 
-        IReadOnlyCollection<Profile> Profiles { get; }
-
-        event EventHandler<Profile>? ActiveProfileChanged;
-
-        event EventHandler? ProfilesChanged;
+        IObservable<IReadOnlyCollection<Profile>> Profiles { get; }
 
         Task InitializeAsync();
 
@@ -34,39 +33,34 @@ namespace TouchBubbles.Client.Services
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IEntityService _entityService;
-        private List<Profile> _profiles = new List<Profile>();
-        private Profile _activeProfile = Profile.Empty;
+        private readonly ILocalStorageService _localStorageService;
+        private RangeObservableCollection<Profile> _profiles = new RangeObservableCollection<Profile>();
+        private Subject<Profile> _activeProfile = new Subject<Profile>();
         private bool _isInitialized;
 
-        public ProfileService(IHttpClientFactory httpClientFactory, IEntityService entityService)
+        public ProfileService(IHttpClientFactory httpClientFactory, IEntityService entityService, ILocalStorageService localStorageService)
         {
             _httpClientFactory = httpClientFactory;
             _entityService = entityService;
+            _localStorageService = localStorageService;
+
+            _activeProfile.SubscribeAsync(p => SetActiveProfileIdAsync(p.Id));
         }
 
-        public Profile ActiveProfile
-        {
-            get => _activeProfile;
-            set
-            {
-                _activeProfile = value;
-                ActiveProfileChanged?.Invoke(this, value);
-            }
-        }
+        public IObservable<Profile> ActiveProfile => _activeProfile;
 
-        public IReadOnlyCollection<Profile> Profiles => _profiles;
-
-        public event EventHandler<Profile>? ActiveProfileChanged;
-
-        public event EventHandler? ProfilesChanged;
-
+        public IObservable<IReadOnlyCollection<Profile>> Profiles => _profiles.AsObservable();
+        
         public async Task InitializeAsync()
         {
             if (_isInitialized)
                 return;
             
-            _profiles = await GetProfilesAsync();
-            _activeProfile = _profiles.First();
+            _profiles.AddRange(await GetProfilesAsync());
+
+            var activeProfileId = await GetActiveProfileIdAsync();
+
+            _activeProfile.OnNext(_profiles.FirstOrDefault(x => x.Id == activeProfileId) ?? _profiles.First());
 
             _isInitialized = true;
         }
@@ -74,8 +68,6 @@ namespace TouchBubbles.Client.Services
         public async Task AddProfileAsync(Profile profile)
         {
             _profiles.Add(profile);
-            profile.Changed += ProfileChanged;
-            ProfilesChanged?.Invoke(this, EventArgs.Empty);
 
             await UpdateProfile(profile);
         }
@@ -88,49 +80,41 @@ namespace TouchBubbles.Client.Services
             if (_profiles.Count == 0)
                 throw new InvalidOperationException("Can't delete the last profile.");
 
-            if (profile == ActiveProfile)
-                ActiveProfile = _profiles.Except(new[] { profile }).First();
+            if (profile == await ActiveProfile.LastAsync())
+                _activeProfile.OnNext(_profiles.Except(new[] { profile }).First());
 
-            profile.Changed -= ProfileChanged;
             _profiles.Remove(profile);
-            ProfilesChanged?.Invoke(this, EventArgs.Empty);
 
             var httpClient = _httpClientFactory.CreateClient(EndPoints.BackEnd);
             using var response = await httpClient.DeleteAsync($"profile/{profile.Id}");
         }
 
-        public async void ProfileChanged(object sender, Profile e)
+        public async void ProfileChanged(object? sender, Profile e)
         {
-            if (e == ActiveProfile)
-                ActiveProfileChanged?.Invoke(this, e);
-
             await UpdateProfile(e);
         }
 
         private async Task<List<Profile>> GetProfilesAsync()
         {
             var httpClient = _httpClientFactory.CreateClient(EndPoints.BackEnd);
-            var profileDtos = await httpClient.GetFromJsonAsync<ProfileDto[]>("profile");
+            var profileDtos = await httpClient.GetFromJsonAsync<ProfileDto[]>("profile") ?? Array.Empty<ProfileDto>();
 
-            var profiles = profileDtos.Select(p => new Profile(p.Name, p.Id, new ObservableCollection<Entity>(GetEntities(p.EntityIds)))).ToList();
+            return profileDtos.Select(p => new Profile(p.Name, _entityService.Entities, p.Id, p.EntityIds)).ToList();
+        }
 
-            foreach (var profile in profiles)
-            {
-                profile.Changed += ProfileChanged;
-            }
+        private const string ACTIVE_PROFILE_KEY = "ActiveProfile";
 
-            return profiles;
+        private async Task<Guid> GetActiveProfileIdAsync()
+        {
+            if (!await _localStorageService.ContainKeyAsync(ACTIVE_PROFILE_KEY))
+                return Guid.Empty;
 
-            IEnumerable<Entity> GetEntities(IEnumerable<string> ids)
-            {
-                foreach (var id in ids)
-                {
-                    var entity = _entityService.Entities.SingleOrDefault(e => e.Id == id);
+            return await _localStorageService.GetItemAsync<Guid>(ACTIVE_PROFILE_KEY);
+        }
 
-                    if (entity != null)
-                        yield return entity;
-                }
-            }
+        private async Task SetActiveProfileIdAsync(Guid id)
+        {
+            await _localStorageService.SetItemAsync(ACTIVE_PROFILE_KEY, id);
         }
 
         private async Task UpdateProfile(Profile profile)

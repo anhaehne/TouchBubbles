@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TouchBubbles.Shared.Models.HomeAssistant;
@@ -7,7 +8,7 @@ namespace TouchBubbles.Client.Services
 {
     public interface IEntityService
     {
-        List<Entity> Entities { get; }
+        IObservable<IReadOnlyCollection<Entity>> Entities { get; }
 
         Task CallServiceAsync(string domain, string service, string entityId);
 

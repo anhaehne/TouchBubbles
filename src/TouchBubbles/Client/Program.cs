@@ -1,5 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using Blazored.LocalStorage;
+using Blazored.LocalStorage.JsonConverters;
+using Blazored.LocalStorage.StorageOptions;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using TouchBubbles.Client.Models.Bubbles;
@@ -16,10 +19,15 @@ namespace TouchBubbles.Client
             builder.RootComponents.Add<App>("app");
 
             builder.Services.AddHttpClient();
-
             builder.Services.AddHttpClient(
                 EndPoints.BackEnd,
                 client => { client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress); });
+
+            builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>()
+                .Configure<LocalStorageOptions>(configureOptions =>
+                {
+                    configureOptions.JsonSerializerOptions.Converters.Add(new TimespanJsonConverter());
+                });
 
             // register bubble factories
             builder.Services.AddSingleton<IBubbleFactory, BubbleFactory>();

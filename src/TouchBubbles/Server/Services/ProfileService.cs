@@ -63,7 +63,7 @@ namespace TouchBubbles.Server.Services
 
                 await using var fs = file.OpenRead();
 
-                return await JsonSerializer.DeserializeAsync<ProfileDto[]>(fs);
+                return await JsonSerializer.DeserializeAsync<ProfileDto[]>(fs) ?? Array.Empty<ProfileDto>();
             }
             finally
             {

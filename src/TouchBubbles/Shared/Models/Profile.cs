@@ -1,46 +1,52 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Linq;
 using TouchBubbles.Shared.Models.HomeAssistant;
 
 namespace TouchBubbles.Shared.Models
 {
     public class Profile
     {
-        private string _name;
-
-        public Profile(string name, Guid? id = null, ObservableCollection<Entity>? entities = null)
+        public Profile(string name, 
+            IObservable<IReadOnlyCollection<Entity>> allEntities, 
+            Guid? profileId = null,
+            IEnumerable<string>? entityIds = null)
         {
-            _name = name;
-            Id = id ?? Guid.NewGuid();
-            Entities = entities ?? new ObservableCollection<Entity>();
-            Entities.CollectionChanged += (s, e) => Changed?.Invoke(this, this);
+            Name = name;
+            Id = profileId ?? Guid.NewGuid();
+            EntityIds = new RangeObservableCollection<string>(entityIds ?? Enumerable.Empty<string>());
+            Entities = EntityIds
+                .AsObservable()
+                .Zip(allEntities,
+                (ids, entities) => ids
+                    .Select(id => entities.SingleOrDefault(e => e.Id == id))
+                    .Where(x => x is not null)
+                    .Cast<Entity>()
+                    .ToList());
         }
 
         private Profile()
         {
-            _name = string.Empty;
-            Entities = new ObservableCollection<Entity>();
+            Name = string.Empty;
+            EntityIds = new RangeObservableCollection<string>();
+            Entities = Observable.Empty<IReadOnlyCollection<Entity>>();
         }
 
-        public string Name
-        {
-            get => _name;
-            set
-            {
-                _name = value;
-                Changed?.Invoke(this, this);
-            }
-        }
+        public string Name { get; set; }
 
         public Guid Id { get; }
 
-        public ObservableCollection<Entity> Entities { get; }
+        public RangeObservableCollection<string> EntityIds { get; }
 
-        public event EventHandler<Profile>? Changed;
-
-        public static ProfileDto ToDto(Profile profile) => new ProfileDto { Id = profile.Id, EntityIds = profile.Entities.Select(x => x.Id).ToList(), Name = profile.Name };
+        public IObservable<IReadOnlyCollection<Entity>> Entities { get; }
 
         public static Profile Empty { get; } = new Profile();
+
+        public static ProfileDto ToDto(Profile profile)
+        {
+            return new ProfileDto {Id = profile.Id, EntityIds = profile.EntityIds, Name = profile.Name};
+        }
     }
 }

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Reactive.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -15,19 +18,21 @@ namespace TouchBubbles.Client.Services
 {
     public class EntityService : IEntityService, IDisposable
     {
+        private readonly IBubbleFactory _bubbleFactory;
+        private readonly RangeObservableCollection<Entity> _entities = new RangeObservableCollection<Entity>();
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly NavigationManager _navigationManager;
-        private readonly IBubbleFactory _bubbleFactory;
         private HubConnection? _hubConnection;
         private bool _isInitialized;
 
-        public EntityService(IHttpClientFactory httpClientFactory, NavigationManager navigationManager, IServiceProvider serviceProvider)
+        public EntityService(IHttpClientFactory httpClientFactory, NavigationManager navigationManager,
+            IServiceProvider serviceProvider)
         {
             _httpClientFactory = httpClientFactory;
             _navigationManager = navigationManager;
 
             // For some reason the bubble factory is not available during setup. This works, fix later. 
-            _bubbleFactory = serviceProvider.GetService<IBubbleFactory>(); 
+            _bubbleFactory = serviceProvider.GetRequiredService<IBubbleFactory>();
         }
 
         public void Dispose()
@@ -35,14 +40,16 @@ namespace TouchBubbles.Client.Services
             _ = _hubConnection?.DisposeAsync();
         }
 
-        public List<Entity> Entities { get; private set; } = new List<Entity>();
+        public IObservable<IReadOnlyCollection<Entity>> Entities => _entities
+            .AsObservable()
+            .Select(l => _entities.Where(TryUpdateEntity).ToList());
 
         public async Task InitializeAsync()
         {
             if (_isInitialized)
                 return;
 
-            Entities = await GetEntitiesAsync();
+            _entities.AddRange(await GetEntitiesAsync());
 
             _hubConnection = new HubConnectionBuilder()
                 .WithUrl(new Uri(new Uri(_navigationManager.BaseUri), "homeassistant/hub"))
@@ -50,7 +57,7 @@ namespace TouchBubbles.Client.Services
 
             _hubConnection.On<Entity>(
                 "EntityUpdated",
-                entity => UpdateEntities(new []{entity}));
+                entity => UpdateEntities(new[] {entity}));
 
             await _hubConnection.StartAsync();
 
@@ -63,9 +70,10 @@ namespace TouchBubbles.Client.Services
 
             var response = await haClient.PostAsJsonAsync(
                 $"homeassistant/services/{domain}/{service}",
-                new { entity_id = entityId });
+                new {entity_id = entityId});
 
-            var updatedEntities = await response.Content.ReadFromJsonAsync<IReadOnlyCollection<Entity>>();
+            var updatedEntities = await response.Content.ReadFromJsonAsync<IReadOnlyCollection<Entity>>() ??
+                                  Array.Empty<Entity>();
 
             UpdateEntities(updatedEntities);
         }
@@ -79,22 +87,14 @@ namespace TouchBubbles.Client.Services
             return await response.Content.ReadFromJsonAsync<JsonElement>();
         }
 
-        public async Task<List<Entity>> GetEntitiesAsync()
+        public async Task<IReadOnlyCollection<Entity>> GetEntitiesAsync()
         {
             var haClient = _httpClientFactory.CreateClient(EndPoints.BackEnd);
 
-            var entities = await haClient.GetFromJsonAsync<List<Entity>>("homeassistant/states");
+            var entities = await haClient.GetFromJsonAsync<IReadOnlyCollection<Entity>>("homeassistant/states") ??
+                           Array.Empty<Entity>();
 
-            return Filter(entities).ToList();
-
-            IEnumerable<Entity> Filter(IEnumerable<Entity> innerEntities)
-            {
-                foreach (var entity in innerEntities)
-                {
-                    if(TryUpdateEntity(entity))
-                        yield return entity;
-                }
-            }
+            return entities.ToList();
         }
 
         private bool TryUpdateEntity(Entity entity)
@@ -114,12 +114,12 @@ namespace TouchBubbles.Client.Services
         {
             foreach (var entity in entities)
             {
-                var updatedEntity = Entities.SingleOrDefault(x => x.Id == entity.Id);
+                var updatedEntity = _entities.SingleOrDefault(x => x.Id == entity.Id);
 
-                if (updatedEntity != null)
-                    updatedEntity?.UpdateWith(entity);
-                else if(TryUpdateEntity(entity))
-                    Entities.Add(entity);
+                if (updatedEntity is not null)
+                    updatedEntity.UpdateWith(entity);
+                else if (TryUpdateEntity(entity))
+                    _entities.Add(entity);
             }
         }
     }

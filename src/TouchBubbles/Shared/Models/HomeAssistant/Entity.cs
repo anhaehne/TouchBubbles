@@ -55,7 +55,7 @@ namespace TouchBubbles.Shared.Models.HomeAssistant
         private string GetName()
         {
             if (Attributes.TryGetProperty("friendly_name", out var propValue) && !string.IsNullOrEmpty(propValue.GetString()))
-                return propValue.GetString();
+                return propValue.GetString() ?? "unknown";
 
             var lastIdPart = Id?.Split(".").LastOrDefault();
 
@@ -67,9 +67,17 @@ namespace TouchBubbles.Shared.Models.HomeAssistant
 
         private string GetIconOrDefault()
         {
-            return Attributes.TryGetProperty("icon", out var propValue) && propValue.GetString().Contains("mdi:")
-                ? propValue.GetString().Replace(":", "-")
-                : "mdi-puzzle";
+            const string DEFAULT = "mdi-puzzle";
+
+            if (!Attributes.TryGetProperty("icon", out var propValue))
+                return DEFAULT;
+
+            var icon = propValue.GetString();
+
+            if (string.IsNullOrEmpty(icon) || !icon.Contains("mdi:"))
+                return DEFAULT;
+
+            return icon.Replace(":", "-");
         }
     }
 }

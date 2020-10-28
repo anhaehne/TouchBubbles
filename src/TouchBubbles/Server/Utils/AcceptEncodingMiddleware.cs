@@ -27,6 +27,13 @@ namespace TouchBubbles.Server.Utils
 
         public async Task Invoke(HttpContext context)
         {
+            // We only have to check ipv4 addresses since the internal docker network is ipv4 only.
+            if (context.Connection.RemoteIpAddress is null)
+            {
+                await _next(context);
+                return;
+            }
+
             var acceptEncoding = context.Request.Headers["Accept-Encoding"].ToString().Split(",").Select(x => x.Trim()).ToList();
 
             // Check if the request source is the ingress reverse proxy and the accept encoding contains brotli (br). If so remove it from the list.

@@ -9,7 +9,7 @@ namespace System.Text.Json
             var bufferWriter = new ArrayBufferWriter<byte>();
             using (var writer = new Utf8JsonWriter(bufferWriter))
                 element.WriteTo(writer);
-            return JsonSerializer.Deserialize<T>(bufferWriter.WrittenSpan, options);
+            return JsonSerializer.Deserialize<T>(bufferWriter.WrittenSpan, options)!;
         }
 
         public static T ToObject<T>(this JsonDocument document, JsonSerializerOptions? options = null)

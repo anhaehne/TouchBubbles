@@ -132,7 +132,7 @@ namespace TouchBubbles.Server.Services
 
             return await JsonSerializer.DeserializeAsync<WebsocketApiMessage>(
                 ms,
-                cancellationToken: _cancellationTokenSource.Token);
+                cancellationToken: _cancellationTokenSource.Token) ?? throw new InvalidOperationException("Message expected but got null.");
         }
 
         private async Task SendResponseAsync<T>(T response)
