@@ -41,7 +41,7 @@ namespace TouchBubbles.Client.Services
         }
 
         public IObservable<IReadOnlyCollection<Entity>> Entities => _entities
-            .AsObservable()
+            .ToCollectionObservable()
             .Select(l => _entities.Where(TryUpdateEntity).ToList());
 
         public async Task InitializeAsync()

@@ -22,7 +22,9 @@ namespace TouchBubbles.Client.Services
 
         Task InitializeAsync();
 
-        Task AddProfileAsync(Profile profile);
+        Task AddProfileAsync(string profileName);
+
+        void SetActiveProfile(Profile profile);
 
         Task RemoveProfileAsync(Profile profile);
 
@@ -49,7 +51,7 @@ namespace TouchBubbles.Client.Services
 
         public IObservable<Profile> ActiveProfile => _activeProfile;
 
-        public IObservable<IReadOnlyCollection<Profile>> Profiles => _profiles.AsObservable();
+        public IObservable<IReadOnlyCollection<Profile>> Profiles => _profiles.ToCollectionObservable();
         
         public async Task InitializeAsync()
         {
@@ -65,11 +67,17 @@ namespace TouchBubbles.Client.Services
             _isInitialized = true;
         }
 
-        public async Task AddProfileAsync(Profile profile)
+        public async Task AddProfileAsync(string profileName)
         {
+            var profile = new Profile(profileName, _entityService.Entities);
             _profiles.Add(profile);
 
             await UpdateProfile(profile);
+        }
+
+        public void SetActiveProfile(Profile profile)
+        {
+            _activeProfile.OnNext(profile);
         }
 
         public async Task RemoveProfileAsync(Profile profile)

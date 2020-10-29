@@ -1,10 +1,11 @@
 ﻿@using TouchBubbles.Client.Services
 @using TouchBubbles.Shared.Models
+@inherits RxComponentBase
 @inject IProfileService ProfileService
 @inject IOverlayService OverlayService
 
 <div class="add-profile-overlay">
-    @foreach (var profile in ProfileService.Profiles)
+    @foreach (var profile in _profiles)
     {
         <div class="profile" @onclick="() => SelectProfile(profile)">
             @profile.Name
@@ -15,15 +16,21 @@
 
 @code {
 
+    private readonly IReadOnlyCollection<Profile> _profiles = Array.Empty<Profile>();
+
+    protected override void OnInitialized()
+    {
+        this.UpdatePropertyWith(ProfileService.Profiles, o => o._profiles);
+    }
+
     private void OnAddProfileClick()
     {
-        ProfileService.AddProfileAsync(new Profile("New Profile"));
+        ProfileService.AddProfileAsync("New Profile");
     }
 
     private void SelectProfile(Profile profile)
     {
-        ProfileService.ActiveProfile = profile;
+        ProfileService.SetActiveProfile(profile);
         OverlayService.HideOverlay();
     }
-
 }

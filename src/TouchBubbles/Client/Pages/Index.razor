@@ -3,6 +3,9 @@
 @using TouchBubbles.Shared.Models
 @using TouchBubbles.Client.Components
 @using TouchBubbles.Client.Models.Bubbles
+@using System.Reactive.Linq
+@using TouchBubbles.Shared.Models.HomeAssistant
+@inherits RxComponentBase
 @inject IOverlayService OverlayService;
 @inject IEntityService EntityService;
 @inject IJSRuntime JsRuntime;
@@ -25,23 +28,22 @@
 
 @code
 {
-    private IList<Bubble> _bubbles = new List<Bubble>();
-    private IList<Bubble> _defaultBubbles = new List<Bubble>();
+    private IReadOnlyCollection<Bubble> _bubbles = Array.Empty<Bubble>();
+    private IReadOnlyCollection<Bubble> _defaultBubbles = Array.Empty<Bubble>();
 
     protected override async Task OnInitializedAsync()
     {
         _defaultBubbles = GetDefaultBubbles();
-        _bubbles = _defaultBubbles.ToList();
+
+        var bubbles = ProfileService
+            .ActiveProfile
+            .SelectMany(p => p.Entities)
+            .Select(CreateBubbles);
+
+        this.UpdatePropertyWith(bubbles, t => t._bubbles);
 
         await EntityService.InitializeAsync();
         await ProfileService.InitializeAsync();
-
-        ProfileService.ActiveProfileChanged += (sender, profile) =>
-        {
-            _bubbles = _defaultBubbles.ToList();
-            UpdateBubbles();
-        };
-        UpdateBubbles();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -56,29 +58,13 @@
         await UpdateSlidesAsync();
     }
 
-    private void UpdateBubbles()
+
+    private IReadOnlyCollection<Bubble> CreateBubbles(IReadOnlyCollection<Entity> entities)
     {
-        var entityBubbles = _bubbles.OfType<EntityBubble>().ToList();
-        var removedBubbles = entityBubbles.Where(x => !ProfileService.ActiveProfile.Entities.Contains(x.Entity));
-
-        foreach (var removedBubble in removedBubbles)
-            _bubbles.Remove(removedBubble);
-
-        for (var i = 0; i < ProfileService.ActiveProfile.Entities.Count; i++)
-        {
-            if (i < entityBubbles.Count && entityBubbles[i].Entity == ProfileService.ActiveProfile.Entities[i])
-                continue;
-
-            var newBubble = BubbleFactory.CreateBubble(ProfileService.ActiveProfile.Entities[i]);
-
-            entityBubbles.Insert(i, newBubble);
-            _bubbles.Insert(i, newBubble);
-        }
-
-        StateHasChanged();
+        return entities.Select(e => BubbleFactory.CreateBubble(e)).Concat(_defaultBubbles).ToList();
     }
 
-    private IList<Bubble> GetDefaultBubbles()
+    private IReadOnlyCollection<Bubble> GetDefaultBubbles()
     {
         return new List<Bubble>
         {

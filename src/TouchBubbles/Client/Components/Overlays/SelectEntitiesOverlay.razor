@@ -1,7 +1,9 @@
 ﻿@using TouchBubbles.Client.Services
 @using TouchBubbles.Shared.Models.HomeAssistant
+@using System.Reactive.Linq
+@inherits RxComponentBase
 @inject IEntityService EntityService
-@inject IProfileService ProfileService 
+@inject IProfileService ProfileService
 @inject IOverlayService OverlayService
 
 <div class="select-entities-overlay">
@@ -10,46 +12,34 @@
         @foreach (var model in _entities)
         {
             <div class="entity">
-                <input type="checkbox" @bind="model.IsSelected" />
+                <input type="checkbox" checked="@model.IsSelected"/>
                 <span class="mdi @model.Entity.Icon"></span>
                 @($"{model.Entity.Name} ({model.Entity.Type})")
             </div>
         }
     </div>
-    <div class="buttons">
-        <button @onclick="OnOk">Ok</button>
-        <button @onclick="OnCancel">Cancel</button>
-    </div>
 </div>
 
 @code {
 
-    private List<EntityModel> _entities = new List<EntityModel>();
+    private IReadOnlyCollection<EntityModel> _entities = Array.Empty<EntityModel>();
 
-    protected override async Task OnInitializedAsync()
+    protected override Task OnInitializedAsync()
     {
-        _entities = EntityService.Entities.OrderBy(e => e.Type).ThenBy(e => e.Name).Select(e => new EntityModel(e)).ToList();
-        foreach (var model in _entities)
-        {
-            model.IsSelected = ProfileService.ActiveProfile.Entities.Contains(model.Entity);
-        }
+        var activeEntitiesIds = ProfileService.ActiveProfile.SelectMany(p => p.EntityIds.ToCollectionObservable());
+
+        var entityModels = EntityService.Entities
+            .Select(e => e.OrderBy(e => e.Type).ThenBy(e => e.Name).ToList())
+            .Zip(activeEntitiesIds, (entities, selectedIds) => entities.Select(e => new EntityModel(e) {IsSelected = selectedIds.Contains(e.Id)}));
+
+        this.UpdatePropertyWith(entityModels, o => o._entities);
+
+        return Task.CompletedTask;
     }
 
-    private void OnOk()
+    private void OnIsSelectedChanged(EntityModel entityModel)
     {
-        ProfileService.ActiveProfile.Entities.Clear();
 
-        foreach (var model in _entities.Where(x => x.IsSelected))
-        {
-            ProfileService.ActiveProfile.Entities.Add(model.Entity);
-        }
-
-        OverlayService.HideOverlay();
-    }
-
-    private void OnCancel()
-    {
-        OverlayService.HideOverlay();
     }
 
     class EntityModel

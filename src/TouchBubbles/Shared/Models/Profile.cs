@@ -18,7 +18,7 @@ namespace TouchBubbles.Shared.Models
             Id = profileId ?? Guid.NewGuid();
             EntityIds = new RangeObservableCollection<string>(entityIds ?? Enumerable.Empty<string>());
             Entities = EntityIds
-                .AsObservable()
+                .ToCollectionObservable()
                 .Zip(allEntities,
                 (ids, entities) => ids
                     .Select(id => entities.SingleOrDefault(e => e.Id == id))

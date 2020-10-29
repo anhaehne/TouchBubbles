@@ -35,7 +35,7 @@ namespace System.Reactive.Linq
             return source.SelectMany(wrapped).Subscribe(_ => { }, handler);
         }
 
-        public static IObservable<IReadOnlyCollection<T>> AsObservable<T>(this ObservableCollection<T> collection) =>
+        public static IObservable<IReadOnlyCollection<T>> ToCollectionObservable<T>(this ObservableCollection<T> collection) =>
             Observable
                 .FromEvent<NotifyCollectionChangedEventHandler, NotifyCollectionChangedEventArgs>(
                     handler => (sender, args) => handler(args),
