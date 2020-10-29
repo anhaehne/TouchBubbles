@@ -16,7 +16,7 @@ namespace TouchBubbles.Client.Services
 {
     public interface IProfileService
     {
-        IObservable<Profile> ActiveProfile { get; }
+        BehaviorSubject<Profile> ActiveProfile { get; }
 
         IObservable<IReadOnlyCollection<Profile>> Profiles { get; }
 
@@ -49,7 +49,7 @@ namespace TouchBubbles.Client.Services
             _activeProfile.SubscribeAsync(p => SetActiveProfileIdAsync(p.Id));
         }
 
-        public IObservable<Profile> ActiveProfile => _activeProfile;
+        public BehaviorSubject<Profile> ActiveProfile => _activeProfile;
 
         public IObservable<IReadOnlyCollection<Profile>> Profiles => _profiles.ToCollectionObservable();
         

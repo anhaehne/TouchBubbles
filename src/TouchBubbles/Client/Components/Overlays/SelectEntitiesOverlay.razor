@@ -1,7 +1,6 @@
 ﻿@using TouchBubbles.Client.Services
 @using TouchBubbles.Shared.Models.HomeAssistant
 @using System.Reactive.Linq
-@inherits RxComponentBase
 @inject IEntityService EntityService
 @inject IProfileService ProfileService
 @inject IOverlayService OverlayService
@@ -12,7 +11,7 @@
         @foreach (var model in _entities)
         {
             <div class="entity">
-                <input type="checkbox" checked="@model.IsSelected"/>
+                <input type="checkbox" @onchange="@(e => OnIsSelectedChanged(model, e.Value))" checked="@model.IsSelected" />
                 <span class="mdi @model.Entity.Icon"></span>
                 @($"{model.Entity.Name} ({model.Entity.Type})")
             </div>
@@ -28,18 +27,33 @@
     {
         var activeEntitiesIds = ProfileService.ActiveProfile.SelectMany(p => p.EntityIds.ToCollectionObservable());
 
-        var entityModels = EntityService.Entities
+        EntityService.Entities
             .Select(e => e.OrderBy(e => e.Type).ThenBy(e => e.Name).ToList())
-            .Zip(activeEntitiesIds, (entities, selectedIds) => entities.Select(e => new EntityModel(e) {IsSelected = selectedIds.Contains(e.Id)}));
-
-        this.UpdatePropertyWith(entityModels, o => o._entities);
+            .Zip(activeEntitiesIds, (entities, selectedIds) => entities.Select(e => new EntityModel(e) {IsSelected = selectedIds.Contains(e.Id)}).ToList())
+            .Subscribe(entityModels =>
+            {
+                _entities = entityModels;
+                StateHasChanged();
+            });
 
         return Task.CompletedTask;
     }
 
-    private void OnIsSelectedChanged(EntityModel entityModel)
+    private void OnIsSelectedChanged(EntityModel entityModel, object? isSelectedValue)
     {
 
+        Console.Write($"OnIsSelectedChanged {entityModel.Entity.Id} {isSelectedValue}");
+
+        var isSelected = (isSelectedValue as bool?) ?? false;
+
+        if (isSelected)
+        {
+            ProfileService.ActiveProfile.Value.EntityIds.Add(entityModel.Entity.Id);
+        }
+        else
+        {
+            ProfileService.ActiveProfile.Value.EntityIds.Remove(entityModel.Entity.Id);
+        }
     }
 
     class EntityModel

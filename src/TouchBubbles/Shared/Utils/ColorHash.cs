@@ -15,7 +15,7 @@ namespace TouchBubbles.Shared.Utils
 
         public static (int Hue, double Saturation, double Luminance) HSL(string str)
         {
-            var hash = GetMd5Hash(str);
+            var hash = GetHash(str);
 
             var hue = (int)(hash % 359);
 
@@ -89,10 +89,10 @@ namespace TouchBubbles.Shared.Utils
             }
         }
 
-        private static long GetMd5Hash(string str)
+        private static long GetHash(string str)
         {
-            MD5 md5Hasher = MD5.Create();
-            var hashed = md5Hasher.ComputeHash(Encoding.UTF8.GetBytes(str));
+            var hasher = SHA256.Create();
+            var hashed = hasher.ComputeHash(Encoding.UTF8.GetBytes(str));
             return Math.Abs(BitConverter.ToInt32(hashed, 0));
         }
     }

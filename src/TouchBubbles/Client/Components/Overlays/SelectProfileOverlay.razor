@@ -1,6 +1,5 @@
 ﻿@using TouchBubbles.Client.Services
 @using TouchBubbles.Shared.Models
-@inherits RxComponentBase
 @inject IProfileService ProfileService
 @inject IOverlayService OverlayService
 
@@ -16,11 +15,15 @@
 
 @code {
 
-    private readonly IReadOnlyCollection<Profile> _profiles = Array.Empty<Profile>();
+    private IReadOnlyCollection<Profile> _profiles = Array.Empty<Profile>();
 
     protected override void OnInitialized()
     {
-        this.UpdatePropertyWith(ProfileService.Profiles, o => o._profiles);
+        ProfileService.Profiles.Subscribe(p =>
+        {
+            _profiles = p;
+            StateHasChanged();
+        });
     }
 
     private void OnAddProfileClick()

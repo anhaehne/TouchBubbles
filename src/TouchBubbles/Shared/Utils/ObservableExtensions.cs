@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
 namespace System.Reactive.Linq
@@ -35,12 +33,12 @@ namespace System.Reactive.Linq
             return source.SelectMany(wrapped).Subscribe(_ => { }, handler);
         }
 
-        public static IObservable<IReadOnlyCollection<T>> ToCollectionObservable<T>(this ObservableCollection<T> collection) =>
-            Observable
-                .FromEvent<NotifyCollectionChangedEventHandler, NotifyCollectionChangedEventArgs>(
-                    handler => (sender, args) => handler(args),
-                    handler => collection.CollectionChanged += handler,
-                    handler => collection.CollectionChanged -= handler)
-                .Select(e => collection);
+        public static IObservable<IReadOnlyCollection<T>> ToCollectionObservable<T>(
+            this ObservableCollection<T> collection)
+        {
+            var subject = new BehaviorSubject<IReadOnlyCollection<T>>(collection);
+            collection.CollectionChanged += (sender, args) => subject.OnNext(collection);
+            return subject;
+        }
     }
 }
