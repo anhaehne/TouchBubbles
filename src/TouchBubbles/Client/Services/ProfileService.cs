@@ -37,7 +37,7 @@ namespace TouchBubbles.Client.Services
         private readonly IEntityService _entityService;
         private readonly ILocalStorageService _localStorageService;
         private RangeObservableCollection<Profile> _profiles = new RangeObservableCollection<Profile>();
-        private Subject<Profile> _activeProfile = new Subject<Profile>();
+        private BehaviorSubject<Profile> _activeProfile = new BehaviorSubject<Profile>(Profile.Empty);
         private bool _isInitialized;
 
         public ProfileService(IHttpClientFactory httpClientFactory, IEntityService entityService, ILocalStorageService localStorageService)

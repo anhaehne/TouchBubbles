@@ -25,6 +25,18 @@
         "ASPNETCORE_ENVIRONMENT": "Development",
         "HOME_ASSISTANT_API": "https://home.hhnl.de"
       },
+      "applicationUrl": "http://127.0.0.1:5000",
+      "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}"
+    },
+    "TouchBubbles.ServerHttps": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "SUPERVISOR_TOKEN": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiI4MDI1NWUzMjFlMGM0NmZhYjllNWY0MmEyZmE4MDRmYiIsImlhdCI6MTYwMjA3Njg1OCwiZXhwIjoxOTE3NDM2ODU4fQ.TelH7lR3BLuv7cPXXC_SgCGbxwhNY2NKUehHQx226TA",
+        "DATA_DIRECTORY": "data",
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "HOME_ASSISTANT_API": "https://home.hhnl.de"
+      },
       "applicationUrl": "https://127.0.0.1:5001",
       "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}"
     }

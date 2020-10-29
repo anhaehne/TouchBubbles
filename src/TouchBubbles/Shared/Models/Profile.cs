@@ -16,7 +16,7 @@ namespace TouchBubbles.Shared.Models
         {
             Name = name;
             Id = profileId ?? Guid.NewGuid();
-            EntityIds = new RangeObservableCollection<string>(entityIds ?? Enumerable.Empty<string>());
+            EntityIds = new RangeObservableCollection<string>();
             Entities = EntityIds
                 .ToCollectionObservable()
                 .Zip(allEntities,
@@ -25,6 +25,8 @@ namespace TouchBubbles.Shared.Models
                     .Where(x => x is not null)
                     .Cast<Entity>()
                     .ToList());
+
+            EntityIds.AddRange(entityIds);
         }
 
         private Profile()

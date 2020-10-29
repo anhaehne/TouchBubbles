@@ -41,6 +41,9 @@ namespace Microsoft.AspNetCore.Components
             Expression<Func<TThis, T>> propertyAccess)
             where TThis : RxComponentBase
         {
+
+            Console.WriteLine("UpdatePropertyWith");
+
             var member = GetPropertyInfo(propertyAccess);
             var subscription = obs.Subscribe(next =>
             {
