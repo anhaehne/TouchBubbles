@@ -22,7 +22,6 @@
     </div>
     <!-- Add Pagination -->
     <div class="swiper-pagination"></div>
-    @*<div class="gradient-overlay"></div>*@
 </div>
 
 @code
@@ -40,7 +39,6 @@
             .Select(CreateBubbles)
             .SubscribeAsync(async e =>
              {
-                 Console.WriteLine($"Bubbles: {e.Count}");
                  _bubbles = e;
                  StateHasChanged();
                  await UpdateSlidesAsync();

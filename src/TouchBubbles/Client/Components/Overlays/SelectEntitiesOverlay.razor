@@ -11,7 +11,19 @@
         @foreach (var model in _entities)
         {
             <div class="entity">
-                <input type="checkbox" @onchange="@(e => OnIsSelectedChanged(model, e.Value))" checked="@model.IsSelected" />
+                <input type="checkbox" @onchange="@(e => { 
+
+                                                      var isSelected = (e.Value as bool?) ?? false;
+
+                                                    if (isSelected)
+                                                    {
+                                                        ProfileService.ActiveProfile.Value.EntityIds.Add(model.Entity.Id);
+                                                    }
+                                                    else
+                                                    {
+                                                        ProfileService.ActiveProfile.Value.EntityIds.Remove(model.Entity.Id);
+                                                    }
+                                                })" checked="@model.IsSelected" />
                 <span class="mdi @model.Entity.Icon"></span>
                 @($"{model.Entity.Name} ({model.Entity.Type})")
             </div>
@@ -27,6 +39,8 @@
     {
         var activeEntitiesIds = ProfileService.ActiveProfile.SelectMany(p => p.EntityIds.ToCollectionObservable());
 
+        activeEntitiesIds.Subscribe(collection => Console.WriteLine("activeIdsChanged"));
+
         EntityService.Entities
             .Select(e => e.OrderBy(e => e.Type).ThenBy(e => e.Name).ToList())
             .Zip(activeEntitiesIds, (entities, selectedIds) => entities.Select(e => new EntityModel(e) {IsSelected = selectedIds.Contains(e.Id)}).ToList())
@@ -39,24 +53,7 @@
         return Task.CompletedTask;
     }
 
-    private void OnIsSelectedChanged(EntityModel entityModel, object? isSelectedValue)
-    {
-
-        Console.Write($"OnIsSelectedChanged {entityModel.Entity.Id} {isSelectedValue}");
-
-        var isSelected = (isSelectedValue as bool?) ?? false;
-
-        if (isSelected)
-        {
-            ProfileService.ActiveProfile.Value.EntityIds.Add(entityModel.Entity.Id);
-        }
-        else
-        {
-            ProfileService.ActiveProfile.Value.EntityIds.Remove(entityModel.Entity.Id);
-        }
-    }
-
-    class EntityModel
+    public class EntityModel
     {
         public EntityModel(Entity entity)
         {

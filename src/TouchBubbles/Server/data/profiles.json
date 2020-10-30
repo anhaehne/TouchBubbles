@@ -1,1 +1,1 @@
-[{"name":"Default","id":"54c531e7-ac61-4338-b4ce-52f84e576987","entity_ids":["light.buro","light.flur","light.schlafzimmer"]},{"name":"New Profile","id":"e9c5efec-dc26-48b0-b2bb-550511818d47","entity_ids":[]}]
+[{"name":"Default","id":"54c531e7-ac61-4338-b4ce-52f84e576987","entity_ids":["light.flur","light.buro","light.schlafzimmer"]},{"name":"New Profile","id":"e9c5efec-dc26-48b0-b2bb-550511818d47","entity_ids":[]}]
