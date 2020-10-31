@@ -73,7 +73,7 @@ namespace TouchBubbles.Shared.Models
             }
         }
 
-        public bool SupportsSlidingValue { get; set; }
+        public bool SupportsSlidingValue { get; protected set; }
 
         public virtual Task OnClickAsync()
         {

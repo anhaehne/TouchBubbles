@@ -15,6 +15,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-direction: column;
 }
 
 .bubble-name {
@@ -30,4 +31,15 @@
 .bubble-content {
     width: 100%;
     text-align: center;
+}
+
+.bubble-controls {
+    margin-top: 1vw;
+}
+
+.bubble-controls button {
+    color: white;
+    background: none;
+    border: none;
+    font-size: 4vw;
 }

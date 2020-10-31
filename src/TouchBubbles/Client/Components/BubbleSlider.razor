@@ -2,7 +2,7 @@
 @using TouchBubbles.Shared.Models.HomeAssistant
 @inject IJSRuntime JsRuntime;
 
-<div @onclick="OnClick">
+<div @onclick="OnClick" class="bubble-container">
     <svg class="bubble-background" viewBox="0 0 100 100" preserveAspectRatio="xMidYMin slice" @ref="SvgReference">
 
         <defs>

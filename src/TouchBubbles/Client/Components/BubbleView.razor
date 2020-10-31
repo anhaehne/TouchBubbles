@@ -1,6 +1,8 @@
 ﻿@using TouchBubbles.Shared.Models
 @using TouchBubbles.Client.Models.Bubbles
+@using TouchBubbles.Client.Services
 @inject IJSRuntime JsRuntime;
+@inject ISettingsService SettingsService
 
 <div class="bubble">
     <div class="bubble-content">
@@ -14,9 +16,24 @@
             SupportsSlidingValue="Model.SupportsSlidingValue"
             OnClick="OnBubbleClickedAsync"/>
     </div>
+    <div class="bubble-controls" style="display: @(_areBubbleControlsEnabled ? "initial" : "none")">
+        <button>
+            <span class="mdi mdi-arrow-left"></span>
+        </button>
+
+        <button>
+            <span class="mdi mdi-delete"></span>
+        </button>
+
+        <button>
+            <span class="mdi mdi-arrow-right"></span>
+        </button>
+    </div>
 </div>
 
 @code {
+
+    private bool _areBubbleControlsEnabled = false;
 
     [Parameter]
     public Bubble Model
@@ -30,7 +47,14 @@
     protected override void OnParametersSet()
     {
         if (Model is EntityBubble entityBubble)
+        {
             entityBubble.BubbleChanged += OnEntityChanged;
+            SettingsService.BubbleControlsEnabledChanged += (sender, enabled) =>
+            {
+                _areBubbleControlsEnabled = enabled;
+                StateHasChanged();
+            };
+        }
     }
 
     private void OnEntityChanged()

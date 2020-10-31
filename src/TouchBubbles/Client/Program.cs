@@ -40,6 +40,7 @@ namespace TouchBubbles.Client
             builder.Services.AddSingleton<IEntityService, EntityService>();
             builder.Services.AddSingleton<IOverlayService, OverlayService>();
             builder.Services.AddSingleton<IProfileService, ProfileService>();
+            builder.Services.AddSingleton<ISettingsService, SettingsService>();
 
             await builder.Build().RunAsync();
         }

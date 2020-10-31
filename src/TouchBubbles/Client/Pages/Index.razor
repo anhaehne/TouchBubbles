@@ -10,12 +10,13 @@
 @inject IJSRuntime JsRuntime;
 @inject IProfileService ProfileService;
 @inject IBubbleFactory BubbleFactory;
+@inject ISettingsService SettingsService
 
 <div class="swiper-container">
     <div class="swiper-wrapper">
         @foreach (var bubble in _bubbles)
         {
-            <div class="swiper-slide">
+            <div class="swiper-slide" >
                 <BubbleView Model="bubble" />
             </div>
         }
@@ -68,6 +69,10 @@
     {
         return new List<Bubble>
         {
+            new EditProfileBubble(SettingsService),
+            new SelectEntitiesBubble(OverlayService),
+            new ReloadBubble(JsRuntime),
+            new SelectProfileBubble(OverlayService),
             new Bubble
             {
                 BackgroundColor = "LightGray",
@@ -75,9 +80,6 @@
                 Name = "Settings",
                 Icon = "mdi-cog-outline"
             },
-            new SelectEntitiesBubble(OverlayService),
-            new ReloadBubble(JsRuntime),
-            new SelectProfileBubble(OverlayService),
         };
     }
 
