@@ -11,19 +11,19 @@
         @foreach (var model in _entities)
         {
             <div class="entity">
-                <input type="checkbox" @onchange="@(e => { 
+                <input type="checkbox" @onchange="@(e => {
 
-                                                      var isSelected = (e.Value as bool?) ?? false;
+                                                        var isSelected = (e.Value as bool?) ?? false;
 
-                                                    if (isSelected)
-                                                    {
-                                                        ProfileService.ActiveProfile.Value.EntityIds.Add(model.Entity.Id);
-                                                    }
-                                                    else
-                                                    {
-                                                        ProfileService.ActiveProfile.Value.EntityIds.Remove(model.Entity.Id);
-                                                    }
-                                                })" checked="@model.IsSelected" />
+                                                        if (isSelected)
+                                                        {
+                                                            ProfileService.ActiveProfile.Value.EntityIds.Add(model.Entity.Id);
+                                                        }
+                                                        else
+                                                        {
+                                                            ProfileService.ActiveProfile.Value.EntityIds.Remove(model.Entity.Id);
+                                                        }
+                                                    })" checked="@model.IsSelected" />
                 <span class="mdi @model.Entity.Icon"></span>
                 @($"{model.Entity.Name} ({model.Entity.Type})")
             </div>

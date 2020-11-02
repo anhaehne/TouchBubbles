@@ -3,37 +3,40 @@
 @using TouchBubbles.Client.Services
 @inject IJSRuntime JsRuntime;
 @inject ISettingsService SettingsService
+@inject IProfileService ProfileService
 
 <div class="bubble">
     <div class="bubble-above">
         <h3 class="bubble-name">@Model.Name</h3>
     </div>
     <div class="bubble-content">
-        <BubbleSlider
-            IsActive="@Model.IsActive"
-            BackgroundColor="@Model.BackgroundColor"
-            Icon="@Model.Icon"
-            SliderColor="Red"
-            @bind-SlidingValue="Model.SlidingValue"
-            SupportsSlidingValue="Model.SupportsSlidingValue"
-            OnClick="OnBubbleClickedAsync"/>
+        <BubbleSlider IsActive="@Model.IsActive"
+                      BackgroundColor="@Model.BackgroundColor"
+                      Icon="@Model.Icon"
+                      SliderColor="Red"
+                      @bind-SlidingValue="Model.SlidingValue"
+                      SupportsSlidingValue="Model.SupportsSlidingValue"
+                      OnClick="OnBubbleClickedAsync" />
     </div>
-    <div class="bubble-below">
-        <div class="bubble-controls" style="display: @(_areBubbleControlsEnabled ? "initial" : "none")">
-            <button>
-                <span class="mdi mdi-arrow-left"></span>
-            </button>
+        <div class="bubble-below">
+            @if (Model is EntityBubble entityBubble)
+            {
+            <div class="bubble-controls" style="display: @(_areBubbleControlsEnabled ? "initial" : "none")">
+                <button @onclick="() => MoveBubbleLeft(entityBubble)">
+                    <span class="mdi mdi-arrow-left"></span>
+                </button>
 
-            <button>
-                <span class="mdi mdi-delete"></span>
-            </button>
+                <button @onclick="() => RemoveBubble(entityBubble)">
+                    <span class="mdi mdi-delete"></span>
+                </button>
 
-            <button>
-                <span class="mdi mdi-arrow-right"></span>
-            </button>
+                <button @onclick="() => MoveBubbleRight(entityBubble)">
+                    <span class="mdi mdi-arrow-right"></span>
+                </button>
+            </div>
+            }
         </div>
     </div>
-</div>
 
 @code {
 
@@ -72,4 +75,43 @@
     }
 
     private Bubble? _model;
+
+    private void MoveBubbleLeft(EntityBubble bubble)
+    {
+        var currentIndex = ProfileService.ActiveProfile.Value.EntityIds.IndexOf(bubble.Entity.Id);
+
+        RemoveBubble(bubble);
+
+        if (currentIndex == 0)
+        {
+            ProfileService.ActiveProfile.Value.EntityIds.Add(bubble.Entity.Id);
+        }
+        else
+        {
+            ProfileService.ActiveProfile.Value.EntityIds.Insert(currentIndex - 1, bubble.Entity.Id);
+        }
+    }
+
+    private void MoveBubbleRight(EntityBubble bubble)
+    {
+        var currentIndex = ProfileService.ActiveProfile.Value.EntityIds.IndexOf(bubble.Entity.Id);
+        var lastIndex = ProfileService.ActiveProfile.Value.EntityIds.Count - 1;
+
+        RemoveBubble(bubble);
+
+        if (currentIndex == lastIndex)
+        {
+            ProfileService.ActiveProfile.Value.EntityIds.Insert(0, bubble.Entity.Id);
+        }
+        else
+        {
+            ProfileService.ActiveProfile.Value.EntityIds.Insert(currentIndex + 1, bubble.Entity.Id);
+        }
+    }
+
+    private void RemoveBubble(EntityBubble bubble)
+    {
+        ProfileService.ActiveProfile.Value.EntityIds.Remove(bubble.Entity.Id);
+    }
+}
 }
