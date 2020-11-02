@@ -53,6 +53,7 @@ namespace TouchBubbles.Client.Services
 
             _hubConnection = new HubConnectionBuilder()
                 .WithUrl(new Uri(new Uri(_navigationManager.BaseUri), "homeassistant/hub"))
+                .WithAutomaticReconnect()
                 .Build();
 
             _hubConnection.On<Entity>(
