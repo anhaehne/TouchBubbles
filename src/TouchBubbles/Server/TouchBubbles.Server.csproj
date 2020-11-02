@@ -18,4 +18,8 @@
     <ProjectReference Include="..\Client\TouchBubbles.Client.csproj" />
     <ProjectReference Include="..\Shared\TouchBubbles.Shared.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="data\" />
+  </ItemGroup>
 </Project>
