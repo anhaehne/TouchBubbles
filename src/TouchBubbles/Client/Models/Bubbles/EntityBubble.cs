@@ -9,7 +9,6 @@ namespace TouchBubbles.Client.Models.Bubbles
         public EntityBubble(Entity entity, string? backgroundColorOn = null)
         {
             BackgroundColor = backgroundColorOn ?? ColorHash.HEX(entity.Id);
-            BackgroundColorOutline = BackgroundColor;
             Entity = entity;
             Name = entity.Name;
             Icon = entity.Icon;

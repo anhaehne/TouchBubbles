@@ -28,16 +28,14 @@
 @code
 {
     private IReadOnlyCollection<Bubble> _bubbles = Array.Empty<Bubble>();
-    private IReadOnlyCollection<Bubble> _defaultBubbles = Array.Empty<Bubble>();
 
     protected override async Task OnInitializedAsync()
     {
-        _defaultBubbles = GetDefaultBubbles();
-
         ProfileService
             .ActiveProfile
             .SelectMany(p => p.Entities)
-            .Select(CreateBubbles)
+            .Select(CreateEntityBubbles)
+            .CombineLatest(SettingsService.DefaultBubbles, (entityBubbles, defaultBubbles) => entityBubbles.Concat(defaultBubbles).ToList())
             .SubscribeAsync(async e =>
              {
                  _bubbles = e;
@@ -62,27 +60,9 @@
     }
 
 
-    private IReadOnlyCollection<Bubble> CreateBubbles(IReadOnlyCollection<Entity> entities)
-        => entities.Select(e => BubbleFactory.CreateBubble(e)).Concat(_defaultBubbles).ToList();
-
-    private IReadOnlyCollection<Bubble> GetDefaultBubbles()
-    {
-        return new List<Bubble>
-        {
-            new EditProfileBubble(SettingsService),
-            new SelectEntitiesBubble(OverlayService),
-            new ReloadBubble(JsRuntime),
-            new SelectProfileBubble(OverlayService),
-            new Bubble
-            {
-                BackgroundColor = "LightGray",
-                BackgroundColorOutline = "Gray",
-                Name = "Settings",
-                Icon = "mdi-cog-outline"
-            },
-        };
-    }
-
+    private IReadOnlyCollection<Bubble> CreateEntityBubbles(IReadOnlyCollection<Entity> entities)
+        => entities.Select(e => BubbleFactory.CreateBubble(e)).ToList();
+    
     private async Task UpdateSlidesAsync()
     {
         await JsRuntime.InvokeAsync<string>("Swiper.Update", Array.Empty<object>());

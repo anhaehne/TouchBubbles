@@ -5,6 +5,15 @@
 .bubble-container {
     position: relative;
     display: flex;
+    transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.bubble-container:not(.active) .bubble-background {
+    filter: grayscale(0.5);
+}
+
+.bubble-container:not(.active) {
+    transform: scale(0.8);
 }
 
 circle {
@@ -35,11 +44,17 @@ rect {
     width: 20vw;
     margin-top: -10vw;
     margin-left: -10vw;
-    font-size: 20vw;
+    font-size: 15vw;
     position: absolute;
     pointer-events: none;
     line-height: 20vw;
+    transition: color 0.2s ease;
 }
+
+.bubble-container:not(.active) .bubble-icon {
+    color: #111;
+}
+
 
 .bubble-icon:before {
     display: block;

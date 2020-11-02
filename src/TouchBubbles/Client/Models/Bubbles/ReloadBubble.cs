@@ -11,7 +11,6 @@ namespace TouchBubbles.Client.Models.Bubbles
         public ReloadBubble(IJSRuntime jsRuntime)
         {
             _jsRuntime = jsRuntime;
-            BackgroundColorOutline = "Gray";
             BackgroundColor = "DarkGray";
             Name = "Reload page";
             Icon = "mdi-reload";

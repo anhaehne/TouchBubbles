@@ -6,7 +6,6 @@ namespace TouchBubbles.Shared.Models
     public class Bubble
     {
         private string _backgroundColor = "Red";
-        private string _backgroundColorOutline = "Red";
         private string _icon = "mdi-progress-question";
         private bool _isActive = true;
         private string _name = "Test";
@@ -19,16 +18,6 @@ namespace TouchBubbles.Shared.Models
             set
             {
                 _backgroundColor = value;
-                InvokeBubbleChanged();
-            }
-        }
-
-        public string BackgroundColorOutline
-        {
-            get => _backgroundColorOutline;
-            set
-            {
-                _backgroundColorOutline = value;
                 InvokeBubbleChanged();
             }
         }

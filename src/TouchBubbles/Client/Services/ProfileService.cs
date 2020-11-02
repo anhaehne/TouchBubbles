@@ -43,8 +43,6 @@ namespace TouchBubbles.Client.Services
             _entityService = entityService;
             _localStorageService = localStorageService;
 
-            _activeProfile.SubscribeAsync(p => SetActiveProfileIdAsync(p.Id));
-
         }
 
         public BehaviorSubject<Profile> ActiveProfile => _activeProfile;
@@ -61,6 +59,7 @@ namespace TouchBubbles.Client.Services
             var activeProfileId = await GetActiveProfileIdAsync();
 
             _activeProfile.OnNext(_profiles.FirstOrDefault(x => x.Id == activeProfileId) ?? _profiles.First());
+            _activeProfile.SubscribeAsync(p => SetActiveProfileIdAsync(p.Id));
 
             _isInitialized = true;
         }

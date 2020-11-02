@@ -59,5 +59,22 @@ namespace TouchBubbles.Client.Models.Bubbles
             [JsonPropertyName("brightness")]
             public int Brightness { get; set; }
         }
+
+
+        public class Factory : IEntityBubbleFactory
+        {
+            private readonly IEntityService _entityService;
+
+            public Factory(IEntityService entityService)
+            {
+                _entityService = entityService;
+            }
+
+            public string DefaultIcon => "mdi-lightbulb";
+
+            public bool CanCreate(Entity entity) => entity.Type == "light";
+
+            public EntityBubble Create(Entity entity) => new LightBubble(entity, _entityService);
+        }
     }
 }

@@ -14,8 +14,7 @@ namespace TouchBubbles.Client.Models.Bubbles
 
         public SelectProfileBubble(IOverlayService overlayService)
         {
-            BackgroundColorOutline = "Gray";
-            BackgroundColor = "Transparent";
+            BackgroundColor = "DarkGrey";
             Name = "Select profile";
             Icon = "mdi-arrow-left-right";
             _overlayService = overlayService;

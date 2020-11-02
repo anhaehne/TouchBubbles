@@ -35,7 +35,8 @@ namespace TouchBubbles.Client
 
             // register bubble factories
             builder.Services.AddSingleton<IBubbleFactory, BubbleFactory>();
-            builder.Services.AddSingleton<IEntityBubbleFactory, LightBubbleFactory>();
+            builder.Services.AddSingleton<IEntityBubbleFactory, LightBubble.Factory>();
+            builder.Services.AddSingleton<IEntityBubbleFactory, InputBooleanBubble.Factory>();
 
             builder.Services.AddSingleton<IEntityService, EntityService>();
             builder.Services.AddSingleton<IOverlayService, OverlayService>();

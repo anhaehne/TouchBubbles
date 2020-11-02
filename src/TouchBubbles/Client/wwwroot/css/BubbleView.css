@@ -18,14 +18,26 @@
     flex-direction: column;
 }
 
+.bubble-above {
+    flex: 1 1 0;
+    align-items: flex-end;
+    display: flex;
+    margin-bottom: 2vh;
+}
+
+.bubble-below {
+    flex: 1 1 0;
+    align-items: start;
+    justify-content: center;
+    margin-top: 2vh;
+}
+
 .bubble-name {
     color: white;
-    margin-bottom: 2vw;
-    margin-top: 0;
+    margin: 0;
     font-weight: normal;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    width: 100%;
+    text-align: center;
 }
 
 .bubble-content {

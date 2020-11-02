@@ -11,8 +11,7 @@ namespace TouchBubbles.Client.Models.Bubbles
 
         public SelectEntitiesBubble(IOverlayService overlayService)
         {
-            BackgroundColorOutline = "Gray";
-            BackgroundColor = "Transparent";
+            BackgroundColor = "DarkGrey";
             Name = "Select entities";
             Icon = "mdi-plus";
             _overlayService = overlayService;
