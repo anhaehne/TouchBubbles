@@ -52,7 +52,7 @@ rect {
 }
 
 .bubble-container:not(.active) .bubble-icon {
-    color: #111;
+    color: grey;
 }
 
 
